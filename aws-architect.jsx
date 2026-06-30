@@ -1520,8 +1520,8 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
   // Auto-select first node
   useState(() => { if (nodes.length > 0 && !selectedId) setSelectedId(nodes[0].id); });
 
-  const inputStyle = { width:"100%", fontSize:12, padding:"6px 8px", borderRadius:6, border:"0.5px solid var(--color-border-secondary)", background:"var(--color-background-primary)", color:"var(--color-text-primary)", boxSizing:"border-box" };
-  const labelStyle = { fontSize:11, color:"var(--color-text-secondary)", display:"block", marginBottom:3, fontWeight:500 };
+  const inputStyle = { width:"100%", fontSize:12, padding:"6px 8px", borderRadius:6, border:"0.5px solid #D1D5DB", background:"#FFFFFF", color:"#111827", boxSizing:"border-box", colorScheme:"light" };
+  const labelStyle = { fontSize:11, color:"#6B7280", display:"block", marginBottom:3, fontWeight:500 };
 
   const renderField = (node, fld) => {
     const val = node[fld.f] ?? (fld.type === "select" && fld.options ? fld.options[0]?.value : fld.min ?? 0);
@@ -1532,7 +1532,7 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
           <select value={val}
             onChange={e => updNode(node.id, fld.f, isNaN(parseFloat(e.target.value)) ? e.target.value : parseFloat(e.target.value))}
             style={inputStyle}>
-            {(fld.options || node.pricing.options || []).map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            {(fld.options || node.pricing.options || []).map(o => <option key={o.value} value={o.value} style={{background:"#FFFFFF",color:"#111827"}}>{o.label}</option>)}
           </select>
         ) : (
           <input type="number" min={fld.min ?? 0} max={fld.max} step={fld.step ?? 1}
@@ -1690,9 +1690,9 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
   return (
     <div style={{ flex:1, display:"flex", overflow:"hidden" }}>
       {/* Left column: service list */}
-      <div style={{ width:280, background:"var(--color-background-primary)", borderRight:"0.5px solid var(--color-border-tertiary)", display:"flex", flexDirection:"column", flexShrink:0 }}>
+      <div style={{ width:280, background:"#FFFFFF", borderRight:"0.5px solid #E5E7EB", display:"flex", flexDirection:"column", flexShrink:0 }}>
         {/* Summary header */}
-        <div style={{ padding:"14px 16px", borderBottom:"0.5px solid var(--color-border-tertiary)", background:"#232F3E" }}>
+        <div style={{ padding:"14px 16px", borderBottom:"0.5px solid #E5E7EB", background:"#232F3E" }}>
           <div style={{ fontSize:10, color:"#aaa", marginBottom:2 }}>月額合計</div>
           <div style={{ fontSize:24, fontWeight:700, color:"#FF9900" }}>${detailedTotal.toFixed(2)}</div>
           <div style={{ fontSize:12, color:"#ccc" }}>≈ ¥{detailedJPY.toLocaleString()} ｜ 年 ${(detailedTotal*12).toFixed(0)}</div>
@@ -1710,15 +1710,15 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
           }, {});
           const sorted = Object.entries(bycat).filter(([,v])=>v.total>0).sort((a,b)=>b[1].total-a[1].total);
           return (
-            <div style={{ padding:"12px 14px", borderBottom:"0.5px solid var(--color-border-tertiary)" }}>
-              <div style={{ fontSize:10, fontWeight:600, color:"var(--color-text-secondary)", marginBottom:8, letterSpacing:"0.05em" }}>カテゴリ別内訳</div>
+            <div style={{ padding:"12px 14px", borderBottom:"0.5px solid #E5E7EB" }}>
+              <div style={{ fontSize:10, fontWeight:600, color:"#6B7280", marginBottom:8, letterSpacing:"0.05em" }}>カテゴリ別内訳</div>
               {sorted.map(([cat,{color,total}]) => (
                 <div key={cat} style={{ marginBottom:6 }}>
                   <div style={{ display:"flex", justifyContent:"space-between", fontSize:10, marginBottom:2 }}>
-                    <span style={{ color:"var(--color-text-secondary)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", maxWidth:160 }}>{cat}</span>
-                    <span style={{ fontWeight:600, color:"var(--color-text-primary)", flexShrink:0 }}>${total.toFixed(2)}</span>
+                    <span style={{ color:"#6B7280", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", maxWidth:160 }}>{cat}</span>
+                    <span style={{ fontWeight:600, color:"#111827", flexShrink:0 }}>${total.toFixed(2)}</span>
                   </div>
-                  <div style={{ height:5, background:"var(--color-background-secondary)", borderRadius:3 }}>
+                  <div style={{ height:5, background:"#F3F4F6", borderRadius:3 }}>
                     <div style={{ height:"100%", width:`${detailedTotal>0?Math.min(100,(total/detailedTotal)*100):0}%`, background:color, borderRadius:3 }}/>
                   </div>
                 </div>
@@ -1730,7 +1730,7 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
         {/* Service list */}
         <div style={{ flex:1, overflowY:"auto" }}>
           {nodes.length === 0 ? (
-            <div style={{ textAlign:"center", padding:32, color:"var(--color-text-secondary)", fontSize:12 }}>
+            <div style={{ textAlign:"center", padding:32, color:"#6B7280", fontSize:12 }}>
               サービスを追加してください
             </div>
           ) : nodes.map(node => {
@@ -1741,24 +1741,24 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
             return (
               <div key={node.id}
                 onClick={() => setSelectedId(node.id)}
-                style={{ padding:"10px 14px", cursor:"pointer", background: isSel ? bg : "transparent", borderLeft:`3px solid ${isSel ? color : "transparent"}`, borderBottom:"0.5px solid var(--color-border-tertiary)", transition:"all 0.15s" }}>
+                style={{ padding:"10px 14px", cursor:"pointer", background: isSel ? bg : "transparent", borderLeft:`3px solid ${isSel ? color : "transparent"}`, borderBottom:"0.5px solid #E5E7EB", transition:"all 0.15s" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                   <span style={{ fontSize:18, flexShrink:0 }}>{node.icon}</span>
                   <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ fontSize:12, fontWeight:isSel?600:400, color: isSel ? color : "var(--color-text-primary)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{node.name}</div>
-                    <div style={{ fontSize:10, color:"var(--color-text-secondary)", marginTop:1 }}>
+                    <div style={{ fontSize:12, fontWeight:isSel?600:400, color: isSel ? color : "#111827", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{node.name}</div>
+                    <div style={{ fontSize:10, color:"#6B7280", marginTop:1 }}>
                       {/* Show key setting summary */}
                       {node.pricing.options && (node.pricing.options.find(o=>o.value===node.instanceOption)?.label?.split(" ")[0] || "")}
                       {(node.qty||0) > 1 && ` × ${node.qty}`}
                     </div>
                   </div>
                   <div style={{ textAlign:"right", flexShrink:0 }}>
-                    <div style={{ fontSize:13, fontWeight:600, color: cost>0?"#FF9900":"var(--color-text-secondary)" }}>${cost.toFixed(2)}</div>
-                    <div style={{ fontSize:9, color:"var(--color-text-secondary)" }}>{pct>0 ? `${pct.toFixed(0)}%` : "—"}</div>
+                    <div style={{ fontSize:13, fontWeight:600, color: cost>0?"#FF9900":"#6B7280" }}>${cost.toFixed(2)}</div>
+                    <div style={{ fontSize:9, color:"#6B7280" }}>{pct>0 ? `${pct.toFixed(0)}%` : "—"}</div>
                   </div>
                 </div>
                 {cost > 0 && (
-                  <div style={{ height:2, background:"var(--color-background-secondary)", borderRadius:1, marginTop:6 }}>
+                  <div style={{ height:2, background:"#F3F4F6", borderRadius:1, marginTop:6 }}>
                     <div style={{ height:"100%", width:`${Math.min(100,pct)}%`, background:color, borderRadius:1 }}/>
                   </div>
                 )}
@@ -1767,15 +1767,15 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
           })}
         </div>
 
-        <div style={{ padding:"8px 12px", background:"var(--color-background-secondary)", borderTop:"0.5px solid var(--color-border-tertiary)", fontSize:10, color:"var(--color-text-secondary)", lineHeight:1.6 }}>
+        <div style={{ padding:"8px 12px", background:"#F3F4F6", borderTop:"0.5px solid #E5E7EB", fontSize:10, color:"#6B7280", lineHeight:1.6 }}>
           💡 Savings Plans で最大66%割引 ｜ スポットで最大90%割引
         </div>
       </div>
 
       {/* Right column: detail panel */}
-      <div style={{ flex:1, overflowY:"auto", background:"var(--color-background-secondary)" }}>
+      <div style={{ flex:1, overflowY:"auto", background:"#F3F4F6" }}>
         {!selNode ? (
-          <div style={{ textAlign:"center", padding:60, color:"var(--color-text-secondary)" }}>
+          <div style={{ textAlign:"center", padding:60, color:"#6B7280" }}>
             <div style={{ fontSize:40, marginBottom:12 }}>👈</div>
             <div style={{ fontSize:14 }}>左のサービスを選択して詳細設定</div>
           </div>
@@ -1793,18 +1793,18 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
                 <span style={{ fontSize:32 }}>{selNode.icon}</span>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:18, fontWeight:700, color }}>{selNode.name}</div>
-                  <div style={{ fontSize:12, color:"var(--color-text-secondary)", marginTop:2 }}>{selNode.desc}</div>
+                  <div style={{ fontSize:12, color:"#6B7280", marginTop:2 }}>{selNode.desc}</div>
                 </div>
                 <div style={{ textAlign:"right" }}>
                   <div style={{ fontSize:26, fontWeight:700, color:"#FF9900" }}>${cost.toFixed(2)}</div>
-                  <div style={{ fontSize:12, color:"var(--color-text-secondary)" }}>¥{Math.round(cost*USD_JPY).toLocaleString()}/月</div>
-                  <div style={{ fontSize:11, color:"var(--color-text-secondary)" }}>年額 ${(cost*12).toFixed(0)}</div>
+                  <div style={{ fontSize:12, color:"#6B7280" }}>¥{Math.round(cost*USD_JPY).toLocaleString()}/月</div>
+                  <div style={{ fontSize:11, color:"#6B7280" }}>年額 ${(cost*12).toFixed(0)}</div>
                 </div>
               </div>
 
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
                 {/* Settings card */}
-                <div style={{ background:"var(--color-background-primary)", borderRadius:10, border:"0.5px solid var(--color-border-tertiary)", overflow:"hidden" }}>
+                <div style={{ background:"#FFFFFF", borderRadius:10, border:"0.5px solid #E5E7EB", overflow:"hidden" }}>
                   <div style={{ padding:"10px 16px", background:bg, borderBottom:`0.5px solid ${color}30`, display:"flex", alignItems:"center", gap:6 }}>
                     <span style={{ fontSize:14 }}>⚙️</span>
                     <span style={{ fontSize:13, fontWeight:600, color }}>設定パラメータ</span>
@@ -1813,7 +1813,7 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
                     {fields.length > 0 ? (
                       fields.map(fld => renderField(selNode, fld))
                     ) : (
-                      <div style={{ fontSize:12, color:"var(--color-text-secondary)", padding:"8px 0" }}>
+                      <div style={{ fontSize:12, color:"#6B7280", padding:"8px 0" }}>
                         {selNode.pricing.note || "この項目はデフォルト設定で計算されます"}
                       </div>
                     )}
@@ -1826,28 +1826,28 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
                 </div>
 
                 {/* Breakdown card */}
-                <div style={{ background:"var(--color-background-primary)", borderRadius:10, border:"0.5px solid var(--color-border-tertiary)", overflow:"hidden" }}>
+                <div style={{ background:"#FFFFFF", borderRadius:10, border:"0.5px solid #E5E7EB", overflow:"hidden" }}>
                   <div style={{ padding:"10px 16px", background:bg, borderBottom:`0.5px solid ${color}30`, display:"flex", alignItems:"center", gap:6 }}>
                     <span style={{ fontSize:14 }}>📊</span>
                     <span style={{ fontSize:13, fontWeight:600, color }}>料金内訳</span>
                   </div>
                   <div style={{ padding:"14px 16px" }}>
                     {breakdown.length === 0 ? (
-                      <div style={{ fontSize:12, color:"var(--color-text-secondary)" }}>設定を入力すると内訳が表示されます</div>
+                      <div style={{ fontSize:12, color:"#6B7280" }}>設定を入力すると内訳が表示されます</div>
                     ) : breakdown.map((line, i) => (
                       <div key={i} style={{ marginBottom:10 }}>
                         <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}>
-                          <span style={{ fontSize:11, color:"var(--color-text-secondary)", flex:1, paddingRight:8, lineHeight:1.4 }}>{line.label}</span>
-                          <span style={{ fontSize:12, fontWeight:600, color:"var(--color-text-primary)", flexShrink:0 }}>${line.val.toFixed(2)}</span>
+                          <span style={{ fontSize:11, color:"#6B7280", flex:1, paddingRight:8, lineHeight:1.4 }}>{line.label}</span>
+                          <span style={{ fontSize:12, fontWeight:600, color:"#111827", flexShrink:0 }}>${line.val.toFixed(2)}</span>
                         </div>
-                        <div style={{ height:5, background:"var(--color-background-secondary)", borderRadius:3 }}>
+                        <div style={{ height:5, background:"#F3F4F6", borderRadius:3 }}>
                           <div style={{ height:"100%", width:`${totalBreak>0?Math.min(100,(line.val/totalBreak)*100):0}%`, background:color, borderRadius:3 }}/>
                         </div>
                       </div>
                     ))}
                     {breakdown.length > 1 && (
                       <div style={{ borderTop:`0.5px solid ${color}30`, paddingTop:10, marginTop:4, display:"flex", justifyContent:"space-between" }}>
-                        <span style={{ fontSize:12, fontWeight:600, color:"var(--color-text-primary)" }}>小計</span>
+                        <span style={{ fontSize:12, fontWeight:600, color:"#111827" }}>小計</span>
                         <span style={{ fontSize:13, fontWeight:700, color:"#FF9900" }}>${totalBreak.toFixed(2)}/月</span>
                       </div>
                     )}
@@ -1925,7 +1925,7 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
                 const info = infoMap[selNode.serviceId];
                 if (!info) return null;
                 return (
-                  <div style={{ marginTop:16, background:"var(--color-background-primary)", borderRadius:10, border:`0.5px solid ${color}30`, overflow:"hidden" }}>
+                  <div style={{ marginTop:16, background:"#FFFFFF", borderRadius:10, border:`0.5px solid ${color}30`, overflow:"hidden" }}>
                     <div style={{ padding:"10px 16px", background:bg, borderBottom:`0.5px solid ${color}30`, display:"flex", alignItems:"center", gap:6 }}>
                       <span>📖</span>
                       <span style={{ fontSize:13, fontWeight:600, color }}>{info.title}</span>
@@ -1933,7 +1933,7 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
                     </div>
                     <div style={{ padding:"12px 16px" }}>
                       {info.items.map((item,i) => (
-                        <div key={i} style={{ fontSize:12, color:"var(--color-text-primary)", lineHeight:1.6, marginBottom:5, paddingBottom:5, borderBottom: i < info.items.length-1 ? `0.5px solid var(--color-border-tertiary)` : "none" }}>
+                        <div key={i} style={{ fontSize:12, color:"#111827", lineHeight:1.6, marginBottom:5, paddingBottom:5, borderBottom: i < info.items.length-1 ? `0.5px solid #E5E7EB` : "none" }}>
                           {item}
                         </div>
                       ))}
@@ -1944,9 +1944,9 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
 
               {/* Pricing formula */}
               {!["subnet","securitygroup","nacl","enicard","vpc","iam"].includes(selNode.serviceId) && (
-              <div style={{ marginTop:16, padding:"12px 16px", background:"var(--color-background-primary)", borderRadius:10, border:`0.5px solid ${color}30`, borderLeft:`4px solid ${color}` }}>
-                <div style={{ fontSize:11, fontWeight:600, color:"var(--color-text-secondary)", marginBottom:6 }}>💡 計算式</div>
-                <div style={{ fontSize:12, color:"var(--color-text-primary)", lineHeight:1.7 }}>
+              <div style={{ marginTop:16, padding:"12px 16px", background:"#FFFFFF", borderRadius:10, border:`0.5px solid ${color}30`, borderLeft:`4px solid ${color}` }}>
+                <div style={{ fontSize:11, fontWeight:600, color:"#6B7280", marginBottom:6 }}>💡 計算式</div>
+                <div style={{ fontSize:12, color:"#111827", lineHeight:1.7 }}>
                   {selNode.serviceId === "ec2" && `[インスタンス単価] × [稼働時間/日] × [稼働日数/月] × [台数] × [リージョン係数${rf}]`}
                   {selNode.serviceId === "lambda" && `([リクエスト数 - 1M無料枠] × $0.0000002) + ([GB-秒 - 400K無料] × $0.0000166667) × [リージョン係数]`}
                   {selNode.serviceId === "s3" && `[標準ストレージGB - 5GB無料] × $0.025 + [IA GB] × $0.019 + [リクエスト] × $0.0004 + [転送GB] × $0.114`}
@@ -2011,13 +2011,13 @@ async function exportPDF({ nodes, connections, region, rf }) {
     const iconSrc=awsIconSrc(node.serviceId,color);
     const h2=color.replace("#",""); const rr=parseInt(h2.slice(0,2),16),gg=parseInt(h2.slice(2,4),16),bb2=parseInt(h2.slice(4,6),16);
     return `<g>
-      <rect x="${nx}" y="${ny}" width="${NW}" height="${NH}" rx="10" fill="#131720" stroke="${color}" stroke-width="1.2"/>
+      <rect x="${nx}" y="${ny}" width="${NW}" height="${NH}" rx="10" fill="#FFFFFF" stroke="${color}" stroke-width="1.2" filter="drop-shadow(0 1px 3px rgba(0,0,0,0.12))"/>
       <rect x="${nx}" y="${ny}" width="${NW}" height="4" fill="${color}" opacity="0.95"/>
-      <rect x="${nx+NW/2-20}" y="${ny+10}" width="40" height="40" rx="8" fill="rgba(${rr},${gg},${bb2},0.2)" stroke="rgba(${rr},${gg},${bb2},0.4)" stroke-width="1"/>
-      ${iconSrc?`<image href="${iconSrc}" x="${nx+NW/2-18}" y="${ny+12}" width="36" height="36"/>`:`<text x="${nx+NW/2}" y="${ny+38}" text-anchor="middle" font-size="20" fill="white">${node.icon}</text>`}
-      <text x="${nx+NW/2}" y="${ny+62}" text-anchor="middle" font-size="9" font-weight="bold" fill="rgba(255,255,255,0.9)" font-family="Arial">${node.name.length>16?node.name.slice(0,15)+"…":node.name}</text>
-      <rect x="${nx+NW/2-26}" y="${ny+68}" width="52" height="13" rx="6" fill="${cost>0?`rgba(${rr},${gg},${bb2},0.3)`:"rgba(52,211,153,0.2)"}" stroke="${cost>0?color:"#34D399"}" stroke-width="0.75"/>
-      <text x="${nx+NW/2}" y="${ny+77}" text-anchor="middle" font-size="7.5" font-weight="bold" fill="${cost>0?color:"#34D399"}" font-family="Arial">${cost>0?`$${cost.toFixed(2)}/mo`:"FREE"}</text>
+      <rect x="${nx+NW/2-20}" y="${ny+10}" width="40" height="40" rx="8" fill="rgba(${rr},${gg},${bb2},0.12)" stroke="rgba(${rr},${gg},${bb2},0.35)" stroke-width="1"/>
+      ${iconSrc?`<image href="${iconSrc}" x="${nx+NW/2-18}" y="${ny+12}" width="36" height="36"/>`:`<text x="${nx+NW/2}" y="${ny+38}" text-anchor="middle" font-size="20" fill="${color}">${node.icon}</text>`}
+      <text x="${nx+NW/2}" y="${ny+62}" text-anchor="middle" font-size="9" font-weight="bold" fill="#1F2937" font-family="Arial">${node.name.length>16?node.name.slice(0,15)+"…":node.name}</text>
+      <rect x="${nx+NW/2-26}" y="${ny+68}" width="52" height="13" rx="6" fill="${cost>0?`rgba(${rr},${gg},${bb2},0.14)`:"rgba(16,185,129,0.12)"}" stroke="${cost>0?color:"#10B981"}" stroke-width="0.75"/>
+      <text x="${nx+NW/2}" y="${ny+77}" text-anchor="middle" font-size="7.5" font-weight="bold" fill="${cost>0?color:"#10B981"}" font-family="Arial">${cost>0?`$${cost.toFixed(2)}/mo`:"FREE"}</text>
     </g>`;
   }).join("");
 
@@ -2065,7 +2065,7 @@ table{width:100%;border-collapse:collapse}
 th{padding:8px 10px;background:#232F3E;color:white;font-size:11px;font-weight:600;text-align:left}
 td{border-bottom:0.5px solid #f0f0f0;vertical-align:middle}
 .ttl td{background:#232F3E;color:#FF9900;font-weight:700;font-size:13px;padding:9px 10px}
-.dbg{background:#070A12;border-radius:10px;padding:14px;overflow:hidden;max-height:420px}
+.dbg{background:#F3F4F6;border:1px solid #E5E7EB;border-radius:10px;padding:14px;overflow:hidden;max-height:420px}
 .note{background:#FFF8E7;border-left:4px solid #FF9900;padding:9px 13px;border-radius:0 6px 6px 0;font-size:11px;color:#666;margin-top:20px}
 .pbtn{position:fixed;top:14px;right:14px;background:#FF9900;color:#232F3E;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.2)}
 </style></head><body>
@@ -2573,13 +2573,13 @@ export default function App() {
   // ── Right-panel field renderer ───────────────────────────────────────────────
   const renderField = (node,fld)=>{
     const val = node[fld.f] ?? (fld.type==="select"&&fld.options ? fld.options[0]?.value : fld.min??0);
-    const inp = {width:"100%",fontSize:12,padding:"5px 8px",borderRadius:6,border:"0.5px solid var(--color-border-secondary)",background:"var(--color-background-secondary)",color:"var(--color-text-primary)",boxSizing:"border-box"};
+    const inp = {width:"100%",fontSize:12,padding:"5px 8px",borderRadius:6,border:"0.5px solid #D1D5DB",background:"#FFFFFF",color:"#111827",boxSizing:"border-box",colorScheme:"light"};
     return (
       <div key={fld.f} style={{marginBottom:10}}>
-        <label style={{fontSize:11,color:"var(--color-text-secondary)",display:"block",marginBottom:3}}>{fld.label}</label>
+        <label style={{fontSize:11,color:"#6B7280",display:"block",marginBottom:3}}>{fld.label}</label>
         {fld.type==="select"
           ? <select value={val} onChange={e=>updNode(fld.f,isNaN(parseFloat(e.target.value))?e.target.value:parseFloat(e.target.value))} style={inp}>
-              {(fld.options||node.pricing.options||[]).map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
+              {(fld.options||node.pricing.options||[]).map(o=><option key={o.value} value={o.value} style={{background:"#FFFFFF",color:"#111827"}}>{o.label}</option>)}
             </select>
           : <input type="number" min={fld.min??0} max={fld.max} step={fld.step??1} value={val}
               onChange={e=>updNode(fld.f,parseFloat(e.target.value)||0)} style={inp}/>
@@ -2589,7 +2589,7 @@ export default function App() {
   };
 
   return (
-    <div style={{display:"flex",flexDirection:"column",height:"100vh",fontFamily:"var(--font-sans)",background:"#070A12",overflow:"hidden"}}>
+    <div style={{display:"flex",flexDirection:"column",height:"100vh",fontFamily:"var(--font-sans)",background:"#F3F4F6",overflow:"hidden"}}>
 
       {/* ── Header ── */}
       <div style={{background:"#232F3E",color:"white",padding:"0 12px",display:"flex",alignItems:"center",gap:10,height:46,flexShrink:0}}>
@@ -2648,8 +2648,8 @@ export default function App() {
         {showSaveMenu && <div style={{position:"fixed",inset:0,zIndex:9998}} onClick={()=>setShowSaveMenu(false)}/>}
 
         <select value={region} onChange={e=>setRegion(e.target.value)}
-          style={{background:"#37475A",color:"white",border:"0.5px solid #4A5E73",borderRadius:6,padding:"4px 8px",fontSize:12,cursor:"pointer"}}>
-          {Object.keys(REGION_FACTOR).map(r=><option key={r}>{r}</option>)}
+          style={{background:"#37475A",color:"white",border:"0.5px solid #4A5E73",borderRadius:6,padding:"4px 8px",fontSize:12,cursor:"pointer",colorScheme:"dark"}}>
+          {Object.keys(REGION_FACTOR).map(r=><option key={r} style={{background:"#37475A",color:"white"}}>{r}</option>)}
         </select>
 
         <div style={{background:"#FF9900",color:"#232F3E",borderRadius:6,padding:"4px 10px",fontWeight:700,fontSize:13,whiteSpace:"nowrap"}}>
@@ -2678,25 +2678,25 @@ export default function App() {
         {/* ── Canvas tab ── */}
         {activeTab==="canvas" && (<>
           {/* Left sidebar */}
-          <div style={{width:190,background:"#0D1117",borderRight:"0.5px solid #1E2530",overflowY:"auto",flexShrink:0,display:"flex",flexDirection:"column"}}>
-            <div style={{padding:"8px",borderBottom:"0.5px solid #1E2530"}}>
+          <div style={{width:190,background:"#F9FAFB",borderRight:"0.5px solid #E5E7EB",overflowY:"auto",flexShrink:0,display:"flex",flexDirection:"column"}}>
+            <div style={{padding:"8px",borderBottom:"0.5px solid #E5E7EB"}}>
               <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 サービスを検索"
-                style={{width:"100%",background:"#1A2030",border:"0.5px solid #2A3A4A",borderRadius:6,padding:"5px 8px",fontSize:12,color:"white",boxSizing:"border-box"}}/>
+                style={{width:"100%",background:"#FFFFFF",border:"0.5px solid #D1D5DB",borderRadius:6,padding:"5px 8px",fontSize:12,color:"#111827",boxSizing:"border-box",colorScheme:"light"}}/>
             </div>
             <div style={{flex:1,overflowY:"auto"}}>
               {filteredServices.map(cat=>(
                 <div key={cat.catId}>
-                  <div style={{padding:"5px 10px",fontSize:9,fontWeight:700,color:cat.color,background:"rgba(0,0,0,0.3)",letterSpacing:"0.08em"}}>{cat.label.toUpperCase()}</div>
+                  <div style={{padding:"5px 10px",fontSize:9,fontWeight:700,color:cat.color,background:"rgba(0,0,0,0.04)",letterSpacing:"0.08em"}}>{cat.label.toUpperCase()}</div>
                   {cat.services.map(svc=>(
                     <div key={svc.id} draggable onDragStart={e=>e.dataTransfer.setData("service",JSON.stringify(svc))}
-                      style={{display:"flex",alignItems:"center",gap:6,padding:"5px 8px",cursor:"grab",borderBottom:"0.5px solid #1A2030"}}>
+                      style={{display:"flex",alignItems:"center",gap:6,padding:"5px 8px",cursor:"grab",borderBottom:"0.5px solid #F0F1F3"}}>
                       {awsIconSrc(svc.id,cat.color)
                         ? <img src={awsIconSrc(svc.id,cat.color)} width={20} height={20} style={{borderRadius:4,flexShrink:0}}/>
                         : <span style={{fontSize:14,width:20,textAlign:"center",flexShrink:0}}>{svc.icon}</span>
                       }
                       <div style={{minWidth:0}}>
-                        <div style={{fontSize:11,fontWeight:500,color:"rgba(255,255,255,0.85)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{svc.name}</div>
-                        <div style={{fontSize:9,color:"#555",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{svc.desc}</div>
+                        <div style={{fontSize:11,fontWeight:500,color:"#1F2937",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{svc.name}</div>
+                        <div style={{fontSize:9,color:"#9CA3AF",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{svc.desc}</div>
                       </div>
                     </div>
                   ))}
@@ -2709,12 +2709,12 @@ export default function App() {
           <div style={{flex:1,position:"relative",overflow:"hidden"}}>
             {/* Toolbar */}
             <div style={{position:"absolute",top:10,right:12,zIndex:10,display:"flex",gap:6,alignItems:"center"}}>
-              {connecting && <div style={{background:"#1E2530",border:"1px solid #A78BFA",borderRadius:8,padding:"5px 12px",fontSize:12,color:"#A78BFA"}}>接続先をクリック（Escでキャンセル）</div>}
-              <div style={{display:"flex",gap:4,background:"#1E2530",border:"0.5px solid #2A3A4A",borderRadius:8,padding:"4px"}}>
-                <button onClick={()=>setZoom(z=>Math.min(3,z*1.2))} style={{background:"none",border:"none",color:"#aaa",cursor:"pointer",fontSize:16,width:26,height:26}}>+</button>
-                <span style={{color:"#666",fontSize:12,alignSelf:"center",minWidth:36,textAlign:"center"}}>{Math.round(zoom*100)}%</span>
-                <button onClick={()=>setZoom(z=>Math.max(0.2,z*0.8))} style={{background:"none",border:"none",color:"#aaa",cursor:"pointer",fontSize:16,width:26,height:26}}>−</button>
-                <button onClick={()=>{setZoom(1);setPan({x:0,y:0});}} style={{background:"none",border:"none",color:"#aaa",cursor:"pointer",fontSize:13,width:26,height:26}}>⊙</button>
+              {connecting && <div style={{background:"#FFFFFF",border:"1px solid #A78BFA",borderRadius:8,padding:"5px 12px",fontSize:12,color:"#7C3AED",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>接続先をクリック（Escでキャンセル）</div>}
+              <div style={{display:"flex",gap:4,background:"#FFFFFF",border:"0.5px solid #D1D5DB",borderRadius:8,padding:"4px",boxShadow:"0 2px 8px rgba(0,0,0,0.06)"}}>
+                <button onClick={()=>setZoom(z=>Math.min(3,z*1.2))} style={{background:"none",border:"none",color:"#4B5563",cursor:"pointer",fontSize:16,width:26,height:26}}>+</button>
+                <span style={{color:"#6B7280",fontSize:12,alignSelf:"center",minWidth:36,textAlign:"center"}}>{Math.round(zoom*100)}%</span>
+                <button onClick={()=>setZoom(z=>Math.max(0.2,z*0.8))} style={{background:"none",border:"none",color:"#4B5563",cursor:"pointer",fontSize:16,width:26,height:26}}>−</button>
+                <button onClick={()=>{setZoom(1);setPan({x:0,y:0});}} style={{background:"none",border:"none",color:"#4B5563",cursor:"pointer",fontSize:13,width:26,height:26}}>⊙</button>
               </div>
             </div>
 
@@ -2727,17 +2727,17 @@ export default function App() {
               onDrop={handleDrop} onDragOver={e=>e.preventDefault()}>
               <defs>
                 <pattern id="dotgrid" width="24" height="24" patternUnits="userSpaceOnUse">
-                  <circle cx="1" cy="1" r="0.8" fill="rgba(255,255,255,0.07)"/>
+                  <circle cx="1" cy="1" r="0.8" fill="rgba(0,0,0,0.08)"/>
                 </pattern>
                 <pattern id="dotgridLarge" width="120" height="120" patternUnits="userSpaceOnUse">
-                  <circle cx="1" cy="1" r="1.2" fill="rgba(255,255,255,0.04)"/>
+                  <circle cx="1" cy="1" r="1.2" fill="rgba(0,0,0,0.05)"/>
                 </pattern>
                 <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="130%">
-                  <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="rgba(0,0,0,0.5)"/>
+                  <feDropShadow dx="0" dy="3" stdDeviation="5" floodColor="rgba(0,0,0,0.18)"/>
                 </filter>
                 <linearGradient id="cardGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#1A2035"/>
-                  <stop offset="100%" stopColor="#111827"/>
+                  <stop offset="0%" stopColor="#FFFFFF"/>
+                  <stop offset="100%" stopColor="#F8F9FB"/>
                 </linearGradient>
                 {ARROW_COLORS.map((c,i)=>(
                   <marker key={i} id={`arr${i}`} markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
@@ -2753,7 +2753,7 @@ export default function App() {
                   .aspinr{animation:spinr 3s linear infinite;}
                 `}</style>
               </defs>
-              <rect width="100%" height="100%" fill="#070A12"/>
+              <rect width="100%" height="100%" fill="#F3F4F6"/>
               <rect width="100%" height="100%" fill="url(#dotgridLarge)"/>
               <rect width="100%" height="100%" fill="url(#dotgrid)"/>
 
@@ -2788,7 +2788,7 @@ export default function App() {
                       <circle cx={x2} cy={y2} r={4.5} fill={col} opacity="0.9"/>
                       <circle cx={mx} cy={my} r={3} fill={col} opacity="0.5" className="apulse"/>
                       <g style={{cursor:"pointer"}} onClick={()=>setConnections(p=>p.filter(c=>c.id!==conn.id))}>
-                        <circle cx={mx} cy={my} r={13} fill="#070A12" stroke={col} strokeWidth="1.5" opacity="0.95"/>
+                        <circle cx={mx} cy={my} r={13} fill="#FFFFFF" stroke={col} strokeWidth="1.5" opacity="0.97"/>
                         <text x={mx} y={my+5} textAnchor="middle" fontSize="13" fontWeight="bold" fill={col} style={{userSelect:"none"}}>✕</text>
                       </g>
                     </g>
@@ -2812,46 +2812,46 @@ export default function App() {
                       onMouseDown={e=>handleNodeMouseDown(e,node.id)}>
                       <defs>
                         <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor={`rgba(${rgb},0.14)`}/>
+                          <stop offset="0%" stopColor={`rgba(${rgb},0.10)`}/>
                           <stop offset="100%" stopColor="rgba(0,0,0,0)"/>
                         </linearGradient>
                         <clipPath id={`ct${gid}`}><rect x={0} y={0} width={W} height={16} rx={16}/></clipPath>
                       </defs>
-                      {isSel&&<><rect x={-10} y={-10} width={W+20} height={H+20} rx={22} fill="none" stroke={`rgba(${rgb},0.6)`} strokeWidth="1.5" strokeDasharray="8 5" className="aspinr"/><rect x={-18} y={-18} width={W+36} height={H+36} rx={26} fill={`rgba(${rgb},0.05)`}/></>}
+                      {isSel&&<><rect x={-10} y={-10} width={W+20} height={H+20} rx={22} fill="none" stroke={`rgba(${rgb},0.6)`} strokeWidth="1.5" strokeDasharray="8 5" className="aspinr"/><rect x={-18} y={-18} width={W+36} height={H+36} rx={26} fill={`rgba(${rgb},0.06)`}/></>}
                       {isConn&&<><rect x={-8} y={-8} width={W+16} height={H+16} rx={20} fill="none" stroke={`rgba(${rgb},0.9)`} strokeWidth="2" strokeDasharray="6 4" className="adash"/><rect x={-14} y={-14} width={W+28} height={H+28} rx={24} fill={`rgba(${rgb},0.08)`} className="apulse"/></>}
-                      <ellipse cx={W/2} cy={H+14} rx={48} ry={10} fill={`rgba(${rgb},0.2)`} style={{filter:"blur(6px)"}}/>
+                      <ellipse cx={W/2} cy={H+14} rx={48} ry={10} fill={`rgba(${rgb},0.15)`} style={{filter:"blur(6px)"}}/>
                       <rect width={W} height={H} rx={16} fill="url(#cardGrad)" filter="url(#cardShadow)"/>
                       <rect width={W} height={H} rx={16} fill={`url(#${gid})`}/>
-                      <rect x={2} y={2} width={W-4} height={H/2-4} rx={14} fill="rgba(255,255,255,0.025)"/>
+                      <rect x={2} y={2} width={W-4} height={H/2-4} rx={14} fill="rgba(255,255,255,0.4)"/>
                       <rect width={W} height={H} rx={16} fill="none" stroke={isSel?"#FF9900":isConn?color:`rgba(${rgb},0.35)`} strokeWidth={isSel||isConn?1.8:1}/>
                       <rect x={0} y={0} width={W} height={5} fill={color} opacity="0.95" clipPath={`url(#ct${gid})`}/>
-                      <rect x={14} y={0} width={W*0.4} height={5} fill="rgba(255,255,255,0.25)" clipPath={`url(#ct${gid})`}/>
-                      <rect x={W/2-26} y={12} width={52} height={52} rx={14} fill={`rgba(${rgb},0.16)`} stroke={`rgba(${rgb},0.38)`} strokeWidth="1"/>
-                      <rect x={W/2-26} y={12} width={52} height={52} rx={14} fill="rgba(255,255,255,0.025)"/>
+                      <rect x={14} y={0} width={W*0.4} height={5} fill="rgba(255,255,255,0.35)" clipPath={`url(#ct${gid})`}/>
+                      <rect x={W/2-26} y={12} width={52} height={52} rx={14} fill={`rgba(${rgb},0.12)`} stroke={`rgba(${rgb},0.32)`} strokeWidth="1"/>
+                      <rect x={W/2-26} y={12} width={52} height={52} rx={14} fill="rgba(255,255,255,0.3)"/>
                       {iconSrc
                         ? <image href={iconSrc} x={W/2-24} y={14} width={48} height={48}/>
-                        : <text x={W/2} y={46} textAnchor="middle" fontSize={28} fill="white">{node.icon}</text>
+                        : <text x={W/2} y={46} textAnchor="middle" fontSize={28} fill={color}>{node.icon}</text>
                       }
-                      <text x={W/2} y={76} textAnchor="middle" fontSize={10} fontWeight={700} fill="rgba(255,255,255,0.93)" letterSpacing="0.025em">
+                      <text x={W/2} y={76} textAnchor="middle" fontSize={10} fontWeight={700} fill="#1F2937" letterSpacing="0.025em">
                         {node.name.length>16?node.name.slice(0,15)+"…":node.name}
                       </text>
                       {cost>0
-                        ? <><rect x={(W-76)/2} y={82} width={76} height={14} rx={7} fill={`rgba(${rgb},0.25)`} stroke={`rgba(${rgb},0.55)`} strokeWidth="0.75"/>
+                        ? <><rect x={(W-76)/2} y={82} width={76} height={14} rx={7} fill={`rgba(${rgb},0.16)`} stroke={`rgba(${rgb},0.5)`} strokeWidth="0.75"/>
                             <text x={W/2} y={92.5} textAnchor="middle" fontSize={8.5} fontWeight={700} fill={color} letterSpacing="0.05em">${cost.toFixed(2)}/月</text></>
-                        : <><rect x={(W-44)/2} y={82} width={44} height={14} rx={7} fill="rgba(52,211,153,0.18)" stroke="rgba(52,211,153,0.5)" strokeWidth="0.75"/>
-                            <text x={W/2} y={92.5} textAnchor="middle" fontSize={8} fontWeight={800} fill="#34D399" letterSpacing="0.1em">FREE</text></>
+                        : <><rect x={(W-44)/2} y={82} width={44} height={14} rx={7} fill="rgba(16,185,129,0.12)" stroke="rgba(16,185,129,0.5)" strokeWidth="0.75"/>
+                            <text x={W/2} y={92.5} textAnchor="middle" fontSize={8} fontWeight={800} fill="#10B981" letterSpacing="0.1em">FREE</text></>
                       }
                       <g onClick={e=>handleConnect(e,node.id)} style={{cursor:"pointer"}}>
-                        <circle cx={W+14} cy={H/2} r={13} fill={isConn?`rgba(${rgb},0.85)`:"rgba(10,14,22,0.97)"} stroke={isConn?color:`rgba(${rgb},0.55)`} strokeWidth="1.5"/>
-                        <text x={W+14} y={H/2+5} textAnchor="middle" fontSize={15} fill={isConn?"white":`rgba(${rgb},0.85)`} fontWeight="bold" style={{userSelect:"none"}}>{isConn?"●":"+"}</text>
+                        <circle cx={W+14} cy={H/2} r={13} fill={isConn?`rgba(${rgb},0.85)`:"#FFFFFF"} stroke={isConn?color:`rgba(${rgb},0.5)`} strokeWidth="1.5" style={{filter:"drop-shadow(0 1px 3px rgba(0,0,0,0.15))"}}/>
+                        <text x={W+14} y={H/2+5} textAnchor="middle" fontSize={15} fill={isConn?"white":color} fontWeight="bold" style={{userSelect:"none"}}>{isConn?"●":"+"}</text>
                       </g>
                       <g onClick={e=>handleConnect(e,node.id)} style={{cursor:"pointer"}}>
-                        <circle cx={W/2} cy={H+14} r={13} fill="rgba(10,14,22,0.97)" stroke={`rgba(${rgb},0.4)`} strokeWidth="1.5"/>
-                        <text x={W/2} y={H+18.5} textAnchor="middle" fontSize={15} fill={`rgba(${rgb},0.7)`} fontWeight="bold" style={{userSelect:"none"}}>+</text>
+                        <circle cx={W/2} cy={H+14} r={13} fill="#FFFFFF" stroke={`rgba(${rgb},0.4)`} strokeWidth="1.5" style={{filter:"drop-shadow(0 1px 3px rgba(0,0,0,0.15))"}}/>
+                        <text x={W/2} y={H+18.5} textAnchor="middle" fontSize={15} fill={color} fontWeight="bold" style={{userSelect:"none"}}>+</text>
                       </g>
                       {isSel&&(
                         <g onClick={e=>{e.stopPropagation();del();}} style={{cursor:"pointer"}}>
-                          <circle cx={W-2} cy={2} r={13} fill="#0C0508" stroke="#EF4444" strokeWidth={1.5}/>
+                          <circle cx={W-2} cy={2} r={13} fill="#FFFFFF" stroke="#EF4444" strokeWidth={1.5} style={{filter:"drop-shadow(0 1px 3px rgba(0,0,0,0.15))"}}/>
                           <text x={W-2} y={7} textAnchor="middle" fontSize={13} fill="#EF4444" fontWeight="bold" style={{userSelect:"none"}}>✕</text>
                         </g>
                       )}
@@ -2862,11 +2862,11 @@ export default function App() {
 
               {nodes.length===0&&(
                 <g>
-                  <text x="50%" y="33%" textAnchor="middle" fontSize={100} fill="rgba(255,255,255,0.012)">☁</text>
-                  <rect x="50%" y="46%" width="400" height="100" rx="20" fill="rgba(255,153,0,0.025)" stroke="rgba(255,153,0,0.1)" strokeWidth="1.5" strokeDasharray="8 6" style={{transform:"translate(-200px,-20px)"}}/>
-                  <text x="50%" y="44%" textAnchor="middle" fontSize={20} fill="rgba(255,255,255,0.14)" fontWeight={600} letterSpacing="0.05em">AWS Architecture Canvas</text>
-                  <text x="50%" y="51%" textAnchor="middle" fontSize={13} fill="rgba(255,153,0,0.45)" letterSpacing="0.02em">← 左パネルからサービスをドラッグ＆ドロップ</text>
-                  <text x="50%" y="57%" textAnchor="middle" fontSize={10.5} fill="rgba(255,255,255,0.08)">+ ポートをクリックして接続 · Scrollでズーム · Deleteで削除</text>
+                  <text x="50%" y="33%" textAnchor="middle" fontSize={100} fill="rgba(0,0,0,0.02)">☁</text>
+                  <rect x="50%" y="46%" width="400" height="100" rx="20" fill="rgba(255,153,0,0.04)" stroke="rgba(255,153,0,0.2)" strokeWidth="1.5" strokeDasharray="8 6" style={{transform:"translate(-200px,-20px)"}}/>
+                  <text x="50%" y="44%" textAnchor="middle" fontSize={20} fill="rgba(0,0,0,0.25)" fontWeight={600} letterSpacing="0.05em">AWS Architecture Canvas</text>
+                  <text x="50%" y="51%" textAnchor="middle" fontSize={13} fill="rgba(230,126,0,0.7)" letterSpacing="0.02em">← 左パネルからサービスをドラッグ＆ドロップ</text>
+                  <text x="50%" y="57%" textAnchor="middle" fontSize={10.5} fill="rgba(0,0,0,0.22)">+ ポートをクリックして接続 · Scrollでズーム · Deleteで削除</text>
                 </g>
               )}
             </svg>
@@ -2878,8 +2878,8 @@ export default function App() {
             const cost=calcNodeCost(selectedNode,rf);
             const fields=SERVICE_FIELDS[selectedNode.serviceId]||[];
             return(
-              <div style={{width:230,background:"#0D1117",borderLeft:"0.5px solid #1E2530",overflowY:"auto",flexShrink:0}}>
-                <div style={{background:bg,padding:"10px 12px",borderBottom:"0.5px solid #1E2530"}}>
+              <div style={{width:230,background:"#FFFFFF",borderLeft:"0.5px solid #E5E7EB",overflowY:"auto",flexShrink:0}}>
+                <div style={{background:bg,padding:"10px 12px",borderBottom:"0.5px solid #E5E7EB"}}>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
                     {awsIconSrc(selectedNode.serviceId,color)
                       ? <img src={awsIconSrc(selectedNode.serviceId,color)} width={30} height={30} style={{borderRadius:6,flexShrink:0}}/>
@@ -2887,21 +2887,21 @@ export default function App() {
                     }
                     <div>
                       <div style={{fontWeight:700,fontSize:13,color}}>{selectedNode.name}</div>
-                      <div style={{fontSize:10,color:"#666"}}>{selectedNode.desc}</div>
+                      <div style={{fontSize:10,color:"#6B7280"}}>{selectedNode.desc}</div>
                     </div>
                   </div>
                 </div>
                 <div style={{padding:12}}>
-                  <div style={{fontSize:22,fontWeight:700,color:"#FF9900",marginBottom:2}}>${cost.toFixed(2)}<span style={{fontSize:12,fontWeight:400,color:"#666"}}>/月</span></div>
-                  <div style={{fontSize:11,color:"#666",marginBottom:12}}>≈ ¥{Math.round(cost*USD_JPY).toLocaleString()}</div>
+                  <div style={{fontSize:22,fontWeight:700,color:"#FF9900",marginBottom:2}}>${cost.toFixed(2)}<span style={{fontSize:12,fontWeight:400,color:"#6B7280"}}>/月</span></div>
+                  <div style={{fontSize:11,color:"#6B7280",marginBottom:12}}>≈ ¥{Math.round(cost*USD_JPY).toLocaleString()}</div>
                   {fields.length>0
                     ? fields.map(fld=>renderField(selectedNode,fld))
-                    : <div style={{fontSize:12,color:"#666",padding:"8px 0"}}>{selectedNode.pricing.note||"設定項目なし"}</div>
+                    : <div style={{fontSize:12,color:"#6B7280",padding:"8px 0"}}>{selectedNode.pricing.note||"設定項目なし"}</div>
                   }
                   {selectedNode.pricing.note&&fields.length>0&&(
                     <div style={{marginTop:8,padding:"6px 8px",background:bg,borderRadius:6,fontSize:10,color,lineHeight:1.5}}>ℹ️ {selectedNode.pricing.note}</div>
                   )}
-                  <button onClick={del} style={{width:"100%",background:"rgba(239,68,68,0.1)",color:"#EF4444",border:"0.5px solid #EF4444",borderRadius:7,padding:"7px 0",fontSize:12,cursor:"pointer",marginTop:10}}>削除</button>
+                  <button onClick={del} style={{width:"100%",background:"rgba(239,68,68,0.08)",color:"#DC2626",border:"0.5px solid #EF4444",borderRadius:7,padding:"7px 0",fontSize:12,cursor:"pointer",marginTop:10}}>削除</button>
                 </div>
               </div>
             );
