@@ -105,6 +105,24 @@ const AWS_ICON_SVG = {
     <path d="M16 34 L64 34" stroke="white" stroke-width="2" opacity="0.5"/>
     <text x="40" y="52" text-anchor="middle" fill="white" font-size="14" font-weight="bold" font-family="Arial">FSx</text>
   </svg>`,
+  ecr: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="18" y="18" width="44" height="44" rx="8" fill="none" stroke="white" stroke-width="2.5"/>
+    <rect x="26" y="26" width="28" height="28" rx="5" fill="white" opacity="0.15"/>
+    <path d="M28 40 C28 33 32 28 40 28 C48 28 52 33 52 40 C52 47 48 52 40 52 C32 52 28 47 28 40 Z" fill="none" stroke="white" stroke-width="2"/>
+    <path d="M34 40 L38 44 L46 36" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <line x1="40" y1="18" x2="40" y2="24" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="40" y1="56" x2="40" y2="62" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="18" y1="40" x2="24" y2="40" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="56" y1="40" x2="62" y2="40" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`,
+  acm: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <path d="M40 14 L58 22 L58 44 C58 54 40 66 40 66 C40 66 22 54 22 44 L22 22 Z" fill="none" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M40 22 L52 28 L52 44 C52 51 40 59 40 59 C40 59 28 51 28 44 L28 28 Z" fill="white" opacity="0.15"/>
+    <circle cx="40" cy="36" r="7" fill="none" stroke="white" stroke-width="2"/>
+    <path d="M36 36 L40 40 L46 32" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </svg>`,
   // ── Database ──
   rds: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
     <rect width="80" height="80" rx="12" fill="${c}"/>
@@ -557,6 +575,8 @@ const AWS_SERVICES = {
         pricing: { unit: "GB/月", base: 0.025, note: "オンプレ↔クラウド連携" } },
       { id: "datasync", name: "DataSync", icon: "🔄", desc: "データ転送",
         pricing: { unit: "GB転送", base: 0.0125 } },
+      { id: "ecr", name: "ECR", icon: "🐳", desc: "コンテナイメージレジストリ",
+        pricing: { unit: "GB/月", base: 0.10, freeGB: 0.5, note: "$0.10/GB/月。同一リージョン内の転送は無料。無料枠500MB/月（12か月）" } },
     ]
   },
   database: {
@@ -695,6 +715,12 @@ const AWS_SERVICES = {
         pricing: { unit: "証跡/月", base: 2.0, note: "最初の証跡は無料、追加$2/月" } },
       { id: "config", name: "AWS Config", icon: "📝", desc: "設定変更追跡",
         pricing: { unit: "設定アイテム", base: 0.003 } },
+      { id: "acm", name: "Certificate Manager", icon: "🔏", desc: "SSL/TLS証明書管理",
+        pricing: { unit: "証明書", base: 0, options: [
+          { label: "パブリック証明書（ACM統合サービス用）無料", value: 0 },
+          { label: "エクスポータブル FQDN $7/枚", value: 7 },
+          { label: "エクスポータブル ワイルドカード $79/枚", value: 79 },
+        ], note: "ALB/CloudFront等のACM統合サービスで使う公開証明書は完全無料。エクスポートする場合のみ有料（FQDN $7、ワイルドカード $79、2026年2月改定）" } },
     ]
   },
   aiml: {
@@ -887,7 +913,7 @@ const REGION_FACTOR = {
   "オレゴン (us-west-2)": 0.87,
 };
 
-const USD_JPY = 155;
+const DEFAULT_USD_JPY = 155;
 let nodeCounter = 0;
 
 function createNode(service, x, y) {
@@ -906,110 +932,9 @@ function createNode(service, x, y) {
 }
 
 function calcNodeCost(node, rf) {
-  const p = node.pricing;
-  const sid = node.serviceId;
-  let cost = 0;
-  if (["ec2","eks","lightsail","directconnect","vpn","transitgateway","msk","sagemaker","redshift","opensearch","documentdb","neptune","elasticache"].includes(sid)) {
-    cost = (node.instanceOption || p.base) * (p.hoursPerMonth || 730) * (["ec2","sagemaker","redshift","opensearch","documentdb","neptune","elasticache","msk"].includes(sid) ? node.qty : 1) * rf;
-    if (p.storage && ["documentdb","neptune"].includes(sid)) cost += node.storageGB * p.storage * rf;
-  } else if (sid === "lambda") {
-    cost = Math.max(0, node.requestsM * 1e6 - (p.freeLimit||0)) * p.base * rf;
-  } else if (sid === "ecs") {
-    cost = (p.base * node.qty + p.memGB * node.qty * 2) * 730 * rf;
-  } else if (["s3","glacier","storagegateway"].includes(sid)) {
-    cost = Math.max(0, node.storageGB - (p.freeGB||0)) * p.base * rf;
-  } else if (["ebs","efs","backup"].includes(sid)) {
-    cost = node.storageGB * p.base * rf;
-  } else if (sid === "fsx") {
-    cost = node.storageGB * (node.instanceOption || p.base) * rf;
-  } else if (sid === "datasync") {
-    cost = node.dataGB * p.base * rf;
-  } else if (sid === "rds") {
-    cost = ((node.instanceOption||p.base) * (p.hoursPerMonth||730) * node.qty + node.storageGB * (p.storage||0)) * rf;
-  } else if (sid === "aurora") {
-    cost = ((p.base * 730 * node.qty) + node.storageGB * p.storage) * rf;
-  } else if (sid === "dynamodb") {
-    cost = (Math.max(0, node.qty*10-(p.freeWCU||0)) * p.base + Math.max(0, node.qty*10-(p.freeRCU||0)) * p.rcu) * rf;
-  } else if (sid === "keyspaces") {
-    cost = (node.requestsM * p.base + node.requestsM * (p.rcu||0)) * rf;
-  } else if (sid === "timestream") {
-    cost = node.dataGB * p.base * rf;
-  } else if (["alb","nlb"].includes(sid)) {
-    cost = (p.base * (p.hoursPerMonth||730) + (p.lcu||0) * 10) * rf;
-  } else if (sid === "cloudfront") {
-    cost = Math.max(0, node.dataGB - (p.freeGB||0)/30) * p.base * rf;
-  } else if (["apigateway","appsync"].includes(sid)) {
-    cost = Math.max(0, node.requestsM - (p.freeLimit||0)/1e6) * p.base * rf;
-  } else if (sid === "route53") {
-    cost = p.base * node.qty * rf;
-  } else if (["sqs","sns","eventbridge"].includes(sid)) {
-    cost = Math.max(0, node.requestsM - (p.freeLimit||0)/1e6) * p.base * rf;
-  } else if (sid === "stepfunctions") {
-    cost = Math.max(0, node.requestsM * 1000 - (p.freeLimit||0)) * p.base / 1000 * rf;
-  } else if (sid === "kinesis") {
-    cost = p.base * node.qty * (p.hoursPerMonth||730) * rf;
-  } else if (["cognito"].includes(sid)) {
-    cost = Math.max(0, node.qty * 1000 - (p.freeLimit||0)) * p.base * rf;
-  } else if (sid === "waf") {
-    cost = (p.base + (p.requests||0) * node.requestsM) * rf;
-  } else if (sid === "cloudwatch") {
-    cost = (Math.max(0, node.qty-(p.freeMetrics||0)) * p.base + node.storageGB * (p.logs||0)) * rf;
-  } else if (["kms","secretsmanager"].includes(sid)) {
-    cost = p.base * node.qty * rf;
-  } else if (sid === "shield") {
-    cost = (node.instanceOption||0) * rf;
-  } else if (["cloudtrail"].includes(sid)) {
-    cost = p.base * Math.max(0, node.qty-1) * rf;
-  } else if (sid === "config") {
-    cost = node.qty * 100 * p.base * rf;
-  } else if (sid === "ssm") {
-    cost = node.qty * 1000 * p.base * rf;
-  } else if (sid === "bedrock") {
-    cost = node.requestsM * 1000 * p.base * rf;
-  } else if (["rekognition","polly","translate","comprehend","textract","iotcore","iotanalytics"].includes(sid)) {
-    cost = node.requestsM * p.base * rf;
-  } else if (sid === "transcribe") {
-    cost = node.qty * p.base * rf;
-  } else if (sid === "athena") {
-    cost = node.dataGB / 1000 * p.base * rf;
-  } else if (sid === "glue") {
-    cost = node.qty * p.base * rf;
-  } else if (sid === "quicksight") {
-    cost = (node.instanceOption||p.base) * node.qty * rf;
-  } else if (["codebuild"].includes(sid)) {
-    cost = Math.max(0, node.qty - 100) * p.base * rf;
-  } else if (["codepipeline","codecommit"].includes(sid)) {
-    cost = Math.max(0, node.qty - 1) * p.base * rf;
-  } else if (sid === "xray") {
-    cost = Math.max(0, node.requestsM - (p.freeLimit||0)/1e6) * p.base * rf;
-  } else if (sid === "greengrass") {
-    cost = Math.max(0, node.qty - 3) * p.base * rf;
-  } else if (sid === "globalaccelerator") {
-    cost = p.base * rf;
-  } else if (sid === "emr") {
-    cost = p.base * 0.0544 * 730 * node.qty * rf;
-  } else if (sid === "costexplorer") {
-    cost = node.requestsM * 1e6 * p.base * rf;
-  } else if (["workspaces","workdocs"].includes(sid)) {
-    cost = (node.instanceOption || p.base) * node.qty * rf;
-  } else if (sid === "appstream") {
-    cost = (node.instanceOption || p.base) * (p.hoursPerMonth || 160) * node.qty * rf;
-  } else if (["connect","mediaconvert","elastictranscoder","ivs","chime","snowball"].includes(sid)) {
-    cost = node.qty * p.base * rf;
-  } else if (sid === "amplify") {
-    cost = Math.max(0, node.qty - (p.freeLimit || 0)) * p.base * rf;
-  } else if (["pinpoint","locationservice"].includes(sid)) {
-    cost = Math.max(0, node.requestsM - (p.freeLimit || 0) / 1e6) * p.base * rf;
-  } else if (sid === "devicefarm") {
-    cost = (node.instanceOption || p.base) * node.qty * rf;
-  } else if (["dms","managedblockchain"].includes(sid)) {
-    cost = (node.instanceOption || p.base) * (p.hoursPerMonth || 730) * node.qty * rf;
-  } else if (sid === "transferfamily") {
-    cost = (p.base * 730 + node.dataGB * 0.04) * rf;
-  } else if (sid === "budgets") {
-    cost = Math.max(0, node.qty - 2) * p.base * rf;
-  }
-  return Math.round(cost * 100) / 100;
+  // アーキテクチャタブ表示用コスト計算
+  // calcDetailedCost と同一ロジックに統一（差異を排除）
+  return calcDetailedCost(node, rf);
 }
 
 const categoryColor = (sid) => {
@@ -1058,6 +983,15 @@ const SERVICE_FIELDS = {
                 { f:"storageGB", label:"ストレージ容量（GB）", type:"number", min:32 },
                 { f:"throughputMBps", label:"スループット（MB/s）", type:"number", min:0, step:8 }],
   datasync:    [{ f:"dataGB", label:"転送データ量（GB/月）", type:"number", min:0 }],
+  ecr:         [{ f:"storageGB", label:"ストレージ（GB）", type:"number", min:0, step:1 },
+                { f:"freeGB", label:"無料枠（GB）", type:"number", min:0, step:0.1 },
+                { f:"dataGB", label:"インターネット転送（GB/月）", type:"number", min:0, step:1 }],
+  acm:         [{ f:"instanceOption", label:"証明書タイプ", type:"select", options:[
+                  { label:"パブリック証明書（ACM統合サービス用）- 無料", value:0 },
+                  { label:"エクスポータブル FQDN - $7/枚", value:7 },
+                  { label:"エクスポータブル ワイルドカード - $79/枚", value:79 },
+                ]},
+                { f:"qty", label:"証明書枚数", type:"number", min:0, step:1 }],
   rds:         [{ f:"instanceOption", label:"インスタンスタイプ", type:"select" },
                 { f:"qty", label:"インスタンス数", type:"number", min:1 },
                 { f:"multiAZ", label:"Multi-AZ", type:"select", options:[{label:"シングルAZ",value:1},{label:"Multi-AZ（×2）",value:2}] },
@@ -1285,7 +1219,12 @@ function calcDetailedCost(node, rf) {
   const sid = node.serviceId;
   const p = node.pricing;
   let cost = 0;
-  const hrs = (node.hoursPerDay ?? 24) * (node.daysPerMonth ?? 30);
+  // AWSの月標準: 730h/月（= 365日 × 24h ÷ 12ヶ月）
+  // カスタム稼働時間が設定されている場合はそちらを優先
+  const defaultHours = 730;
+  const hrs = (node.hoursPerDay != null && node.daysPerMonth != null)
+    ? node.hoursPerDay * node.daysPerMonth
+    : defaultHours;
 
   if (sid === "ec2") {
     cost = (node.instanceOption || p.base) * hrs * (node.qty||1) * rf;
@@ -1498,6 +1437,21 @@ function calcDetailedCost(node, rf) {
     cost = (node.instanceOption||35) * (node.qty||1) * rf;
   } else if (sid === "connect") {
     cost = ((node.inboundMin||0) * 0.018 + (node.outboundMin||0) * 0.024) * rf;
+  } else if (sid === "ecr") {
+    // ストレージ: $0.10/GB/月、無料枠500MB（0.5GB）
+    const billableGB = Math.max(0, (node.storageGB||0) - (node.freeGB||0.5));
+    // アウト転送（インターネット向け）: $0.114/GB、同一リージョン内は無料
+    const xferCost = (node.dataGB||0) * 0.114;
+    cost = (billableGB * 0.10 + xferCost) * rf;
+  } else if (sid === "acm") {
+    // パブリック証明書（ACM統合サービス用）は完全無料
+    // エクスポータブル証明書のみ課金: FQDN $7/枚、ワイルドカード $79/枚
+    const certType = node.instanceOption || 0;
+    if (certType === 0) {
+      cost = 0; // 無料
+    } else {
+      cost = certType * (node.qty||1) * rf;
+    }
   } else {
     // fallback to original
     cost = calcNodeCost(node, rf);
@@ -1506,11 +1460,11 @@ function calcDetailedCost(node, rf) {
 }
 
 // ── CostTab component ─────────────────────────────────────────────────────────
-function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
+function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region, usdJpy = DEFAULT_USD_JPY }) {
   const [selectedId, setSelectedId] = useState(null);
 
   const detailedTotal = nodes.reduce((s, n) => s + calcDetailedCost(n, rf), 0);
-  const detailedJPY = Math.round(detailedTotal * USD_JPY);
+  const detailedJPY = Math.round(detailedTotal * usdJpy);
 
   const updNode = (id, field, value) =>
     setNodes(prev => prev.map(n => n.id === id ? { ...n, [field]: value } : n));
@@ -1641,6 +1595,21 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
     } else if (sid === "connect") {
       add(`インバウンド (${node.inboundMin||0}分 × $0.018)`, (node.inboundMin||0)*0.018*rf2);
       add(`アウトバウンド (${node.outboundMin||0}分 × $0.024)`, (node.outboundMin||0)*0.024*rf2);
+    } else if (sid === "ecr") {
+      const billableGB = Math.max(0, (node.storageGB||0) - (node.freeGB||0.5));
+      add(`ストレージ (${(node.storageGB||0)}GB - ${node.freeGB||0.5}GB無料 = ${billableGB.toFixed(1)}GB課金 × $0.10)`, billableGB*0.10*rf2);
+      add(`インターネット転送 (${node.dataGB||0}GB × $0.114)`, (node.dataGB||0)*0.114*rf2);
+      if ((node.storageGB||0) <= (node.freeGB||0.5)) lines.push({ label:"✅ 無料枠内（500MB以下）", val:0 });
+    } else if (sid === "acm") {
+      const certType = node.instanceOption || 0;
+      if (certType === 0) {
+        lines.push({ label:"✅ パブリック証明書（ACM統合サービス用）は完全無料", val:0 });
+        lines.push({ label:"ALB / CloudFront / API Gateway 等との組み合わせで$0", val:0 });
+      } else if (certType === 7) {
+        add(`エクスポータブル FQDN証明書 (${node.qty||1}枚 × $7)`, 7*(node.qty||1)*rf2);
+      } else if (certType === 79) {
+        add(`エクスポータブル ワイルドカード証明書 (${node.qty||1}枚 × $79)`, 79*(node.qty||1)*rf2);
+      }
     } else if (sid === "natgateway") {
       add(`固定費 (${node.qty||1}台 × 730h × $0.062)`, (node.qty||1)*0.062*730*rf2);
       add(`データ処理 (${node.dataGB||0}GB × $0.062)`, (node.dataGB||0)*0.062*(node.qty||1)*rf2);
@@ -1754,7 +1723,8 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
                   </div>
                   <div style={{ textAlign:"right", flexShrink:0 }}>
                     <div style={{ fontSize:13, fontWeight:600, color: cost>0?"#FF9900":"#6B7280" }}>${cost.toFixed(2)}</div>
-                    <div style={{ fontSize:9, color:"#6B7280" }}>{pct>0 ? `${pct.toFixed(0)}%` : "—"}</div>
+                    <div style={{ fontSize:10, color:"#6B7280" }}>¥{Math.round(cost*usdJpy).toLocaleString()}</div>
+                    <div style={{ fontSize:9, color:"#9CA3AF" }}>{pct>0 ? `${pct.toFixed(0)}%` : "—"}</div>
                   </div>
                 </div>
                 {cost > 0 && (
@@ -1797,7 +1767,7 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
                 </div>
                 <div style={{ textAlign:"right" }}>
                   <div style={{ fontSize:26, fontWeight:700, color:"#FF9900" }}>${cost.toFixed(2)}</div>
-                  <div style={{ fontSize:12, color:"#6B7280" }}>¥{Math.round(cost*USD_JPY).toLocaleString()}/月</div>
+                  <div style={{ fontSize:12, color:"#6B7280" }}>¥{Math.round(cost*usdJpy).toLocaleString()}/月</div>
                   <div style={{ fontSize:11, color:"#6B7280" }}>年額 ${(cost*12).toFixed(0)}</div>
                 </div>
               </div>
@@ -1974,9 +1944,9 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region }) {
 
 // ── PDF Export (Artifact 対応・外部ライブラリ不使用) ─────────────────────────
 // HTML を新ウィンドウで開き、ブラウザの印刷機能で PDF 保存
-async function exportPDF({ nodes, connections, region, rf }) {
+async function exportPDF({ nodes, connections, region, rf, usdJpy = DEFAULT_USD_JPY }) {
   const totalUSD = nodes.reduce((s,n)=>s+calcDetailedCost(n,rf),0);
-  const totalJPY = Math.round(totalUSD * USD_JPY);
+  const totalJPY = Math.round(totalUSD * usdJpy);
   const now = new Date().toLocaleDateString("ja-JP",{year:"numeric",month:"2-digit",day:"2-digit"});
 
   const catsByService = {};
@@ -2038,14 +2008,14 @@ async function exportPDF({ nodes, connections, region, rf }) {
       <td style="padding:8px 10px;font-size:11px;color:#666">${parts.join(", ")||"default"}</td>
       <td style="padding:8px 10px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;background:#eee;border-radius:3px;height:6px"><div style="width:${pct}%;background:${cat?.color||"#FF9900"};height:100%;border-radius:3px"></div></div><span style="font-size:10px;color:#999;white-space:nowrap">${pct}%</span></div></td>
       <td style="padding:8px 10px;font-size:13px;font-weight:700;color:${cost>0?"#FF6600":"#10B981"};text-align:right">${cost>0?`$${cost.toFixed(2)}`:"FREE"}</td>
-      <td style="padding:8px 10px;font-size:11px;color:#666;text-align:right">¥${Math.round(cost*USD_JPY).toLocaleString()}</td>
+      <td style="padding:8px 10px;font-size:11px;color:#666;text-align:right">¥${Math.round(cost*usdJpy).toLocaleString()}</td>
     </tr>`;
   }).join("");
 
   const bycat=nodes.reduce((acc,n)=>{const c=catsByService[n.serviceId];const k=c?.label||"その他";if(!acc[k])acc[k]={color:c?.color||"#888",total:0};acc[k].total+=calcDetailedCost(n,rf);return acc;},{});
   const catRows=Object.entries(bycat).sort((a,b)=>b[1].total-a[1].total).map(([cat,{color,total}])=>{
     const pct=totalUSD>0?Math.round(total/totalUSD*100):0;
-    return `<tr><td style="padding:8px 10px;font-size:12px">${cat}</td><td style="padding:8px 10px"><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;background:#eee;border-radius:4px;height:8px"><div style="width:${pct}%;background:${color};height:100%;border-radius:4px"></div></div><span style="font-size:11px;color:#666;white-space:nowrap">${pct}%</span></div></td><td style="padding:8px 10px;font-size:12px;font-weight:700;color:#FF6600;text-align:right">$${total.toFixed(2)}</td><td style="padding:8px 10px;font-size:12px;color:#666;text-align:right">¥${Math.round(total*USD_JPY).toLocaleString()}</td></tr>`;
+    return `<tr><td style="padding:8px 10px;font-size:12px">${cat}</td><td style="padding:8px 10px"><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;background:#eee;border-radius:4px;height:8px"><div style="width:${pct}%;background:${color};height:100%;border-radius:4px"></div></div><span style="font-size:11px;color:#666;white-space:nowrap">${pct}%</span></div></td><td style="padding:8px 10px;font-size:12px;font-weight:700;color:#FF6600;text-align:right">$${total.toFixed(2)}</td><td style="padding:8px 10px;font-size:12px;color:#666;text-align:right">¥${Math.round(total*usdJpy).toLocaleString()}</td></tr>`;
   }).join("");
 
   // ── Build HTML ─────────────────────────────────────────────────────────────
@@ -2070,7 +2040,7 @@ td{border-bottom:0.5px solid #f0f0f0;vertical-align:middle}
 .pbtn{position:fixed;top:14px;right:14px;background:#FF9900;color:#232F3E;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.2)}
 </style></head><body>
 <button class="pbtn no-print" onclick="window.print()">🖨️ 印刷 / PDF保存 (Ctrl+P)</button>
-<div class="hdr"><h1>☁ AWS Architecture &amp; Cost Report</h1><p>Region: ${region} &nbsp;|&nbsp; ${now} &nbsp;|&nbsp; 1 USD = ${USD_JPY} JPY</p></div>
+<div class="hdr"><h1>☁ AWS Architecture &amp; Cost Report</h1><p>Region: ${region} &nbsp;|&nbsp; ${now} &nbsp;|&nbsp; 1 USD = ${usdJpy} JPY</p></div>
 <div class="bar"></div>
 <div class="body">
   <div class="sec"><div class="b"></div><h2>Summary</h2></div>
@@ -2101,14 +2071,14 @@ td{border-bottom:0.5px solid #f0f0f0;vertical-align:middle}
 }
 
 // ── PDF Preview Modal ──────────────────────────────────────────────────────────
-function PdfPreviewModal({ nodes, connections, region, rf, onClose }) {
+function PdfPreviewModal({ nodes, connections, region, rf, onClose, usdJpy = DEFAULT_USD_JPY }) {
   const [loading, setLoading] = useState(true);
   const [htmlData, setHtmlData] = useState(null);
   const [filename, setFilename] = useState("");
   const iframeRef = useRef(null);
 
   useEffect(() => {
-    exportPDF({ nodes, connections, region, rf }).then(({ html, filename: fn }) => {
+    exportPDF({ nodes, connections, region, rf, usdJpy }).then(({ html, filename: fn }) => {
       setHtmlData(html);
       setFilename(fn);
       setLoading(false);
@@ -2330,6 +2300,41 @@ export default function App() {
   const [panStart, setPanStart] = useState({x:0,y:0});
   const [showPreview, setShowPreview] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [usdJpy, setUsdJpy] = useState(DEFAULT_USD_JPY);
+  const [rateMode, setRateMode] = useState("manual"); // "auto" | "manual"
+  const [rateFetching, setRateFetching] = useState(false);
+  const [rateUpdatedAt, setRateUpdatedAt] = useState(null);
+  const [showRatePanel, setShowRatePanel] = useState(false);
+  const [manualRate, setManualRate] = useState(String(DEFAULT_USD_JPY));
+
+  // Fetch live rate from Frankfurter API (ECB reference rate, no API key required)
+  const fetchLiveRate = async () => {
+    setRateFetching(true);
+    try {
+      const res = await fetch("https://api.frankfurter.app/latest?from=USD&to=JPY");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const rate = data?.rates?.JPY;
+      if (rate && rate > 0) {
+        const rounded = Math.round(rate * 100) / 100;
+        setUsdJpy(rounded);
+        setManualRate(String(rounded));
+        setRateUpdatedAt(new Date());
+        return rounded;
+      }
+    } catch(e) {
+      console.warn("Rate fetch failed:", e);
+      alert(`為替レートの取得に失敗しました。\n手動入力に切り替えます。\n(${e.message})`);
+      setRateMode("manual");
+    } finally {
+      setRateFetching(false);
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    if (rateMode === "auto") fetchLiveRate();
+  }, [rateMode]);
   const [showSaveMenu, setShowSaveMenu] = useState(false);
   const [savedList, setSavedList] = useState(()=>{
     try{return JSON.parse(localStorage.getItem("aws_arch_saves")||"[]");}catch{return [];}
@@ -2341,7 +2346,7 @@ export default function App() {
 
   const rf = REGION_FACTOR[region] ?? 1.0;
   const totalUSD = nodes.reduce((s,n)=>s+calcNodeCost(n,rf),0);
-  const totalJPY = Math.round(totalUSD * USD_JPY);
+  const totalJPY = Math.round(totalUSD * usdJpy);
 
   // ── Canvas interaction ─────────────────────────────────────────────────────
   const handleCanvasMouseDown = useCallback((e) => {
@@ -2656,6 +2661,84 @@ export default function App() {
           ${totalUSD.toFixed(2)}/月 <span style={{fontWeight:400,fontSize:11}}>≈ ¥{totalJPY.toLocaleString()}</span>
         </div>
 
+        {/* Exchange rate button */}
+        <div style={{position:"relative"}}>
+          <button onClick={()=>setShowRatePanel(v=>!v)}
+            title="為替レート設定"
+            style={{display:"flex",alignItems:"center",gap:5,background: rateMode==="auto" ? "#1E3A2F" : "#37475A",color:rateMode==="auto"?"#34D399":"white",border:`0.5px solid ${rateMode==="auto"?"#34D399":"#4A5E73"}`,borderRadius:6,padding:"5px 11px",fontSize:12,cursor:"pointer",whiteSpace:"nowrap"}}>
+            {rateFetching ? "⏳" : "💱"} 1 USD = ¥{usdJpy.toFixed(2)}
+            {rateMode==="auto" && <span style={{fontSize:9,background:"#34D399",color:"#0F2419",borderRadius:4,padding:"1px 5px",fontWeight:700}}>LIVE</span>}
+          </button>
+
+          {showRatePanel && (
+            <div style={{position:"absolute",top:"calc(100% + 6px)",right:0,zIndex:9999,background:"#1E2530",border:"1px solid #3A4A5A",borderRadius:10,width:300,boxShadow:"0 8px 32px rgba(0,0,0,0.5)",overflow:"hidden"}}>
+              <div style={{padding:"10px 14px",background:"#232F3E",borderBottom:"1px solid #3A4A5A",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{color:"#FF9900",fontWeight:700,fontSize:13}}>💱 為替レート設定</span>
+                <button onClick={()=>setShowRatePanel(false)} style={{background:"none",border:"none",color:"#888",cursor:"pointer",fontSize:16}}>✕</button>
+              </div>
+              <div style={{padding:14}}>
+
+                {/* Mode selector */}
+                <div style={{display:"flex",gap:6,marginBottom:14}}>
+                  {[["manual","✏️ 手動入力"],["auto","🌐 自動取得（ECB）"]].map(([m,label])=>(
+                    <button key={m} onClick={()=>setRateMode(m)}
+                      style={{flex:1,padding:"7px 0",fontSize:11,fontWeight:600,borderRadius:7,border:`1px solid ${rateMode===m?"#FF9900":"#3A4A5A"}`,background:rateMode===m?"rgba(255,153,0,0.15)":"transparent",color:rateMode===m?"#FF9900":"#888",cursor:"pointer"}}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                {rateMode==="manual" ? (
+                  <div>
+                    <label style={{fontSize:11,color:"#8B96A5",display:"block",marginBottom:6}}>1 USD = ? JPY</label>
+                    <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                      <input type="number" min={1} max={999} step={0.01}
+                        value={manualRate}
+                        onChange={e=>setManualRate(e.target.value)}
+                        style={{flex:1,fontSize:14,padding:"6px 10px",borderRadius:7,border:"1px solid #3A4A5A",background:"#151B24",color:"white",colorScheme:"dark"}}/>
+                      <span style={{color:"#888",fontSize:12}}>JPY</span>
+                    </div>
+                    <button onClick={()=>{const v=parseFloat(manualRate);if(v>0){setUsdJpy(v);setShowRatePanel(false);}}}
+                      style={{width:"100%",marginTop:10,background:"#FF9900",color:"#232F3E",border:"none",borderRadius:7,padding:"8px 0",fontSize:12,fontWeight:700,cursor:"pointer"}}>
+                      適用
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{fontSize:12,color:"#8B96A5",marginBottom:10,lineHeight:1.6}}>
+                      欧州中央銀行（ECB）の参照レートを自動取得します。<br/>
+                      <span style={{fontSize:10,color:"#666"}}>※ AWSは請求月末のBloombergレートを使用。本ツールの値は概算です。</span>
+                    </div>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 10px",background:"#151B24",borderRadius:7,marginBottom:10}}>
+                      <span style={{fontSize:12,color:"#aaa"}}>現在のレート</span>
+                      <span style={{fontSize:16,fontWeight:700,color:"#34D399"}}>¥{usdJpy.toFixed(2)}</span>
+                    </div>
+                    {rateUpdatedAt && (
+                      <div style={{fontSize:10,color:"#555",textAlign:"right",marginBottom:8}}>
+                        取得: {rateUpdatedAt.toLocaleTimeString("ja-JP")}
+                      </div>
+                    )}
+                    <button onClick={()=>{fetchLiveRate().then(()=>setShowRatePanel(false));}}
+                      disabled={rateFetching}
+                      style={{width:"100%",background:rateFetching?"#2A3A4A":"#34D399",color:rateFetching?"#666":"#0F2419",border:"none",borderRadius:7,padding:"8px 0",fontSize:12,fontWeight:700,cursor:rateFetching?"not-allowed":"pointer"}}>
+                      {rateFetching ? "⏳ 取得中..." : "🔄 レートを更新"}
+                    </button>
+                  </div>
+                )}
+
+                <div style={{marginTop:12,padding:"8px 10px",background:"rgba(255,153,0,0.08)",borderRadius:6,border:"0.5px solid rgba(255,153,0,0.2)"}}>
+                  <div style={{fontSize:10,color:"#FF9900",marginBottom:3,fontWeight:600}}>💡 AWSの為替レートについて</div>
+                  <div style={{fontSize:10,color:"#888",lineHeight:1.6}}>
+                    AWS請求は内部的にUSDで計算され、請求確定時（翌月3〜8日）の<br/>
+                    Bloombergレートで換算されます。レートはAWSコンソールの請求書で確認できます。
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {showRatePanel && <div style={{position:"fixed",inset:0,zIndex:9998}} onClick={()=>setShowRatePanel(false)}/>}
+        </div>
+
         <button onClick={handleExport} disabled={nodes.length===0}
           style={{display:"flex",alignItems:"center",gap:5,background:nodes.length===0?"#3A4A5A":"#E8A000",color:nodes.length===0?"#666":"#232F3E",border:"none",borderRadius:6,padding:"5px 12px",fontSize:12,fontWeight:600,cursor:nodes.length===0?"not-allowed":"pointer",whiteSpace:"nowrap"}}>
           📄 PDF出力
@@ -2893,7 +2976,7 @@ export default function App() {
                 </div>
                 <div style={{padding:12}}>
                   <div style={{fontSize:22,fontWeight:700,color:"#FF9900",marginBottom:2}}>${cost.toFixed(2)}<span style={{fontSize:12,fontWeight:400,color:"#6B7280"}}>/月</span></div>
-                  <div style={{fontSize:11,color:"#6B7280",marginBottom:12}}>≈ ¥{Math.round(cost*USD_JPY).toLocaleString()}</div>
+                  <div style={{fontSize:11,color:"#6B7280",marginBottom:12}}>≈ ¥{Math.round(cost*usdJpy).toLocaleString()}</div>
                   {fields.length>0
                     ? fields.map(fld=>renderField(selectedNode,fld))
                     : <div style={{fontSize:12,color:"#6B7280",padding:"8px 0"}}>{selectedNode.pricing.note||"設定項目なし"}</div>
@@ -2910,13 +2993,13 @@ export default function App() {
 
         {/* ── Cost tab ── */}
         {activeTab==="cost"&&(
-          <CostTab nodes={nodes} setNodes={setNodes} rf={rf} totalUSD={totalUSD} totalJPY={totalJPY} region={region}/>
+          <CostTab nodes={nodes} setNodes={setNodes} rf={rf} totalUSD={totalUSD} totalJPY={totalJPY} region={region} usdJpy={usdJpy}/>
         )}
       </div>
 
       {/* ── Modals ── */}
       {showPreview&&(
-        <PdfPreviewModal nodes={nodes} connections={connections} region={region} rf={rf} onClose={()=>setShowPreview(false)}/>
+        <PdfPreviewModal nodes={nodes} connections={connections} region={region} rf={rf} onClose={()=>setShowPreview(false)} usdJpy={usdJpy}/>
       )}
 
       {drawioSheets&&(
