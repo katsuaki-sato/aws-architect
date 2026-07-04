@@ -197,6 +197,15 @@ const AWS_ICON_SVG = {
     <path d="M48 24 L56 24 L56 28 L60 24 L56 20 L56 24" fill="white" opacity="0.8"/>
     <path d="M48 36 L56 36 L60 40 L56 44 L56 40 L48 40" fill="white" opacity="0.8"/>
   </svg>`,
+  az: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="10" y="12" width="60" height="56" rx="6" fill="none" stroke="white" stroke-width="2.5" stroke-dasharray="10 4"/>
+    <text x="40" y="30" text-anchor="middle" fill="white" font-size="9" font-weight="bold" font-family="Arial" opacity="0.9">AVAILABILITY</text>
+    <text x="40" y="41" text-anchor="middle" fill="white" font-size="9" font-weight="bold" font-family="Arial" opacity="0.9">ZONE</text>
+    <circle cx="24" cy="56" r="7" fill="none" stroke="white" stroke-width="2" opacity="0.7"/>
+    <circle cx="40" cy="56" r="7" fill="none" stroke="white" stroke-width="2" opacity="0.7"/>
+    <circle cx="56" cy="56" r="7" fill="none" stroke="white" stroke-width="2" opacity="0.7"/>
+  </svg>`,
   alb: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
     <rect width="80" height="80" rx="12" fill="${c}"/>
     <circle cx="40" cy="22" r="6" fill="white"/>
@@ -617,13 +626,20 @@ const AWS_SERVICES = {
     label: "ネットワーク", color: "#8C4FFF", bg: "#F3E5F5",
     services: [
       { id: "vpc", name: "VPC", icon: "🔒", desc: "仮想ネットワーク",
-        pricing: { unit: "無料", base: 0, note: "VPC自体は無料（最大5個まで）" } },
+        pricing: { unit: "無料", base: 0, note: "VPC自体は無料（最大5個まで）" }, nodeType:"group",
+        groupStyle:{ color:"#8C4FFF", fillOpacity:0.04, dash:"10 5", labelPos:"top" } },
       { id: "subnet", name: "Subnet", icon: "🗃️", desc: "サブネット（Public/Private）",
-        pricing: { unit: "無料", base: 0, note: "Subnet自体は無料。NAT Gatewayなど通過するリソースに課金" } },
+        pricing: { unit: "無料", base: 0, note: "Subnet自体は無料。NAT Gatewayなど通過するリソースに課金" }, nodeType:"group",
+        groupStyle:{ color:"#3F8624", fillOpacity:0.06, dash:"6 3", labelPos:"top" } },
       { id: "securitygroup", name: "Security Group", icon: "🔐", desc: "仮想ファイアウォール（インスタンス単位）",
-        pricing: { unit: "無料", base: 0, note: "Security Group自体は無料。ルール数・SG数に制限あり" } },
+        pricing: { unit: "無料", base: 0, note: "Security Group自体は無料。ルール数・SG数に制限あり" }, nodeType:"group",
+        groupStyle:{ color:"#DD344C", fillOpacity:0.04, dash:"4 3", labelPos:"top" } },
       { id: "nacl", name: "Network ACL", icon: "📋", desc: "サブネット単位のアクセス制御",
-        pricing: { unit: "無料", base: 0, note: "NACL自体は無料。ステートレスで双方向ルール設定が必要" } },
+        pricing: { unit: "無料", base: 0, note: "NACL自体は無料。ステートレスで双方向ルール設定が必要" }, nodeType:"group",
+        groupStyle:{ color:"#E7157B", fillOpacity:0.04, dash:"4 2", labelPos:"top" } },
+      { id: "az", name: "Availability Zone", icon: "🏢", desc: "アベイラビリティゾーン",
+        pricing: { unit: "無料", base: 0, note: "AZ自体は無料。配置するリソースの料金のみ発生" }, nodeType:"group",
+        groupStyle:{ color:"#2E73B8", fillOpacity:0.05, dash:"8 4", labelPos:"top" } },
       { id: "igw", name: "Internet Gateway", icon: "🌐", desc: "VPC↔インターネット接続",
         pricing: { unit: "無料（データ転送は別途）", base: 0, note: "IGW自体は無料。アウトバウンド転送は$0.114/GB（東京）" } },
       { id: "natgateway", name: "NAT Gateway", icon: "🔄", desc: "プライベートサブネットの外向き通信",
@@ -936,6 +952,18 @@ function calcNodeCost(node, rf) {
   // calcDetailedCost と同一ロジックに統一（差異を排除）
   return calcDetailedCost(node, rf);
 }
+
+
+// ── Container-type nodes (resizable group boxes) ──────────────────────────────
+const CONTAINER_TYPES = new Set(["vpc","subnet","securitygroup","nacl","az","vpcendpoint"]);
+const CONTAINER_DEFAULTS = {
+  vpc:           { w:500, h:360, label:"VPC" },
+  subnet:        { w:300, h:240, label:"Subnet" },
+  securitygroup: { w:260, h:200, label:"Security Group" },
+  nacl:          { w:260, h:200, label:"Network ACL" },
+  az:            { w:360, h:300, label:"Availability Zone" },
+  vpcendpoint:   { w:180, h:120, label:"VPC Endpoint" },
+};
 
 const categoryColor = (sid) => {
   for (const cat of Object.values(AWS_SERVICES)) {
@@ -1453,8 +1481,8 @@ function calcDetailedCost(node, rf) {
       cost = certType * (node.qty||1) * rf;
     }
   } else {
-    // fallback to original
-    cost = calcNodeCost(node, rf);
+    // 未対応サービス（グループノード等）はコスト0
+    cost = 0;
   }
   return Math.round(cost * 100) / 100;
 }
@@ -2291,6 +2319,7 @@ export default function App() {
   const [connecting, setConnecting] = useState(null);
   const [dragging, setDragging] = useState(null);
   const [dragOffset, setDragOffset] = useState({x:0,y:0});
+  const [resizing, setResizing] = useState(null); // {id, startX, startY, startW, startH}
   const [region, setRegion] = useState("東京 (ap-northeast-1)");
   const [activeTab, setActiveTab] = useState("canvas");
   const [search, setSearch] = useState("");
@@ -2360,15 +2389,26 @@ export default function App() {
 
   const handleCanvasMouseMove = useCallback((e) => {
     if (isPanning) { setPan({x: e.clientX-panStart.x, y: e.clientY-panStart.y}); return; }
+    if (resizing) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const mx = (e.clientX - rect.left - pan.x) / zoom;
+      const my = (e.clientY - rect.top  - pan.y) / zoom;
+      const dx = mx - resizing.startMx, dy = my - resizing.startMy;
+      const mode = resizing.mode || "br";
+      const newW = mode==="b" ? resizing.startW : Math.max(200, resizing.startW + dx);
+      const newH = mode==="r" ? resizing.startH : Math.max(120, resizing.startH + dy);
+      setNodes(prev=>prev.map(n=>n.id===resizing.id?{...n,groupW:Math.round(newW),groupH:Math.round(newH)}:n));
+      return;
+    }
     if (!dragging) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left - pan.x)/zoom - dragOffset.x;
-    const y = (e.clientY - rect.top - pan.y)/zoom - dragOffset.y;
+    const y = (e.clientY - rect.top  - pan.y)/zoom - dragOffset.y;
     setNodes(prev=>prev.map(n=>n.id===dragging?{...n,x:Math.max(0,x),y:Math.max(0,y)}:n));
-  },[dragging,dragOffset,isPanning,panStart,pan,zoom]);
+  },[dragging,dragOffset,isPanning,panStart,pan,zoom,resizing]);
 
   const handleCanvasMouseUp = useCallback(()=>{
-    setDragging(null); setIsPanning(false);
+    setDragging(null); setIsPanning(false); setResizing(null);
   },[]);
 
   const handleWheel = useCallback((e)=>{
@@ -2392,9 +2432,16 @@ export default function App() {
       const x = (e.clientX-rect.left-pan.x)/zoom - 60;
       const y = (e.clientY-rect.top-pan.y)/zoom - 50;
       const id = `node-${Date.now()}`;
+      const isGroup = svc.nodeType === "group";
       setNodes(prev=>[...prev,{
-        id, serviceId:svc.id, name:svc.name, icon:svc.icon, desc:svc.desc, pricing:svc.pricing,
+        id, serviceId:svc.id, name:svc.name, icon:svc.icon, desc:svc.desc,
+        pricing:svc.pricing, nodeType:svc.nodeType||"service",
+        groupStyle:svc.groupStyle||null,
         x:Math.max(0,x), y:Math.max(0,y),
+        // グループノードはW/Hを持つ、通常ノードは固定120x100
+        groupW: isGroup ? 360 : undefined,
+        groupH: isGroup ? 240 : undefined,
+        groupLabel: isGroup ? svc.name : undefined,
         qty:1, storageGB:20, dataGB:10, requestsM:1,
         instanceOption:svc.pricing?.options?.[0]?.value ?? svc.pricing?.base ?? 0,
         hoursPerDay:24, daysPerMonth:30,
@@ -2878,8 +2925,120 @@ export default function App() {
                   );
                 })}
 
-                {/* Nodes */}
-                {nodes.map(node=>{
+                {/* ── Group nodes (rendered first = behind) ── */}
+                {nodes.filter(n=>n.nodeType==="group").map(node=>{
+                  const gs = node.groupStyle || { color:"#888", fillOpacity:0.05, dash:"8 4" };
+                  const W = node.groupW || 360;
+                  const H = node.groupH || 240;
+                  const isSel = selected===node.id;
+                  const iconSrc = awsIconSrc(node.serviceId, gs.color);
+                  const label = node.groupLabel || node.name;
+                  const ICON_SIZE = node.groupIconSize || 22;
+                  return (
+                    <g key={node.id}>
+                      {/* Clickable/draggable body */}
+                      <g transform={`translate(${node.x},${node.y})`}
+                        style={{cursor:dragging===node.id?"grabbing":"grab"}}
+                        onMouseDown={e=>handleNodeMouseDown(e,node.id)}>
+
+                        {/* Background fill */}
+                        <rect width={W} height={H} rx={12}
+                          fill={gs.color} fillOpacity={isSel ? gs.fillOpacity*2.5 : gs.fillOpacity}/>
+
+                        {/* Border dashed */}
+                        <rect width={W} height={H} rx={12}
+                          fill="none"
+                          stroke={gs.color}
+                          strokeWidth={isSel ? 2 : 1.5}
+                          strokeDasharray={gs.dash}
+                          strokeOpacity={isSel ? 1 : 0.7}/>
+
+                        {/* Header bar */}
+                        <rect x={0} y={0} width={W} height={32} rx={12}
+                          fill={gs.color} opacity={isSel ? 0.22 : 0.13}/>
+                        <rect x={0} y={16} width={W} height={16}
+                          fill={gs.color} opacity={isSel ? 0.22 : 0.13}/>
+
+                        {/* Icon in header */}
+                        {iconSrc
+                          ? <image href={iconSrc} x={8} y={5} width={ICON_SIZE} height={ICON_SIZE}/>
+                          : <text x={8+ICON_SIZE/2} y={5+ICON_SIZE*0.75} textAnchor="middle"
+                              fontSize={ICON_SIZE*0.8} fill={gs.color}>{node.icon}</text>
+                        }
+
+                        {/* Label text */}
+                        <text x={14+ICON_SIZE} y={21} fontSize={13} fontWeight={700}
+                          fill={gs.color} letterSpacing="0.02em">
+                          {label.length > Math.floor((W-ICON_SIZE-40)/7)
+                            ? label.slice(0, Math.floor((W-ICON_SIZE-40)/7)) + "…"
+                            : label}
+                        </text>
+
+                        {/* FREE badge */}
+                        <rect x={W-44} y={8} width={38} height={16} rx={8}
+                          fill={gs.color} opacity={0.15}/>
+                        <text x={W-25} y={19.5} textAnchor="middle" fontSize={9}
+                          fontWeight={700} fill={gs.color} opacity={0.9}>FREE</text>
+
+                        {/* Delete on select */}
+                        {isSel && (
+                          <g onClick={e=>{e.stopPropagation();del();}} style={{cursor:"pointer"}}>
+                            <circle cx={W-4} cy={4} r={13} fill="#FFFFFF" stroke="#EF4444" strokeWidth={1.5}/>
+                            <text x={W-4} y={9} textAnchor="middle" fontSize={13}
+                              fill="#EF4444" fontWeight="bold" style={{userSelect:"none"}}>✕</text>
+                          </g>
+                        )}
+                      </g>
+
+                      {/* ── Resize handles (outside draggable g to avoid conflict) ── */}
+                      {/* Bottom-right: resize W+H */}
+                      <g style={{cursor:"se-resize"}}
+                        onMouseDown={e=>{
+                          e.stopPropagation();
+                          const r2=canvasRef.current.getBoundingClientRect();
+                          const mx=(e.clientX-r2.left-pan.x)/zoom;
+                          const my=(e.clientY-r2.top-pan.y)/zoom;
+                          setResizing({id:node.id,mode:"br",startW:W,startH:H,startMx:mx,startMy:my});
+                        }}>
+                        <rect x={node.x+W-16} y={node.y+H-16} width={16} height={16} rx={4}
+                          fill={gs.color} opacity={0.25}/>
+                        <text x={node.x+W-8} y={node.y+H-4} textAnchor="middle"
+                          fontSize={11} fill={gs.color} opacity={0.9} style={{userSelect:"none"}}>⤡</text>
+                      </g>
+                      {/* Right edge: resize W only */}
+                      <g style={{cursor:"ew-resize"}}
+                        onMouseDown={e=>{
+                          e.stopPropagation();
+                          const r2=canvasRef.current.getBoundingClientRect();
+                          const mx=(e.clientX-r2.left-pan.x)/zoom;
+                          const my=(e.clientY-r2.top-pan.y)/zoom;
+                          setResizing({id:node.id,mode:"r",startW:W,startH:H,startMx:mx,startMy:my});
+                        }}>
+                        <rect x={node.x+W-8} y={node.y+H/2-20} width={8} height={40} rx={4}
+                          fill={gs.color} opacity={0.2}/>
+                        <text x={node.x+W-4} y={node.y+H/2+5} textAnchor="middle"
+                          fontSize={10} fill={gs.color} opacity={0.7} style={{userSelect:"none"}}>⟺</text>
+                      </g>
+                      {/* Bottom edge: resize H only */}
+                      <g style={{cursor:"ns-resize"}}
+                        onMouseDown={e=>{
+                          e.stopPropagation();
+                          const r2=canvasRef.current.getBoundingClientRect();
+                          const mx=(e.clientX-r2.left-pan.x)/zoom;
+                          const my=(e.clientY-r2.top-pan.y)/zoom;
+                          setResizing({id:node.id,mode:"b",startW:W,startH:H,startMx:mx,startMy:my});
+                        }}>
+                        <rect x={node.x+W/2-20} y={node.y+H-8} width={40} height={8} rx={4}
+                          fill={gs.color} opacity={0.2}/>
+                        <text x={node.x+W/2} y={node.y+H-1} textAnchor="middle"
+                          fontSize={10} fill={gs.color} opacity={0.7} style={{userSelect:"none"}}>⟺</text>
+                      </g>
+                    </g>
+                  );
+                })}
+
+                {/* ── Service nodes (rendered on top of groups) ── */}
+                {nodes.filter(n=>n.nodeType!=="group").map(node=>{
                   const {color}=categoryColor(node.serviceId);
                   const cost=calcNodeCost(node,rf);
                   const isSel=selected===node.id, isConn=connecting===node.id;
@@ -2962,29 +3121,81 @@ export default function App() {
             const fields=SERVICE_FIELDS[selectedNode.serviceId]||[];
             return(
               <div style={{width:230,background:"#FFFFFF",borderLeft:"0.5px solid #E5E7EB",overflowY:"auto",flexShrink:0}}>
-                <div style={{background:bg,padding:"10px 12px",borderBottom:"0.5px solid #E5E7EB"}}>
+                {/* Header */}
+                <div style={{background: selectedNode.nodeType==="group" ? `${selectedNode.groupStyle?.color}18` : bg, padding:"10px 12px",borderBottom:"0.5px solid #E5E7EB"}}>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
-                    {awsIconSrc(selectedNode.serviceId,color)
-                      ? <img src={awsIconSrc(selectedNode.serviceId,color)} width={30} height={30} style={{borderRadius:6,flexShrink:0}}/>
+                    {awsIconSrc(selectedNode.serviceId, selectedNode.nodeType==="group" ? selectedNode.groupStyle?.color : color)
+                      ? <img src={awsIconSrc(selectedNode.serviceId, selectedNode.nodeType==="group" ? selectedNode.groupStyle?.color : color)} width={30} height={30} style={{borderRadius:6,flexShrink:0}}/>
                       : <span style={{fontSize:20}}>{selectedNode.icon}</span>
                     }
                     <div>
-                      <div style={{fontWeight:700,fontSize:13,color}}>{selectedNode.name}</div>
+                      <div style={{fontWeight:700,fontSize:13,color: selectedNode.nodeType==="group" ? selectedNode.groupStyle?.color : color}}>{selectedNode.name}</div>
                       <div style={{fontSize:10,color:"#6B7280"}}>{selectedNode.desc}</div>
                     </div>
                   </div>
                 </div>
+
                 <div style={{padding:12}}>
-                  <div style={{fontSize:22,fontWeight:700,color:"#FF9900",marginBottom:2}}>${cost.toFixed(2)}<span style={{fontSize:12,fontWeight:400,color:"#6B7280"}}>/月</span></div>
-                  <div style={{fontSize:11,color:"#6B7280",marginBottom:12}}>≈ ¥{Math.round(cost*usdJpy).toLocaleString()}</div>
-                  {fields.length>0
-                    ? fields.map(fld=>renderField(selectedNode,fld))
-                    : <div style={{fontSize:12,color:"#6B7280",padding:"8px 0"}}>{selectedNode.pricing.note||"設定項目なし"}</div>
-                  }
-                  {selectedNode.pricing.note&&fields.length>0&&(
-                    <div style={{marginTop:8,padding:"6px 8px",background:bg,borderRadius:6,fontSize:10,color,lineHeight:1.5}}>ℹ️ {selectedNode.pricing.note}</div>
+                  {selectedNode.nodeType==="group" ? (
+                    /* グループノードの設定パネル */
+                    <>
+                      <div style={{fontSize:11,color:"#6B7280",marginBottom:12,lineHeight:1.6,padding:"6px 8px",background:"#F3F4F6",borderRadius:6}}>
+                        ℹ️ {selectedNode.pricing.note||"グループノード（他のサービスを内包できます）"}
+                      </div>
+                      <div style={{marginBottom:10}}>
+                        <label style={{fontSize:11,color:"#6B7280",display:"block",marginBottom:4}}>ラベル名</label>
+                        <input type="text" value={selectedNode.groupLabel||selectedNode.name}
+                          onChange={e=>updNode("groupLabel",e.target.value)}
+                          style={{width:"100%",fontSize:12,padding:"5px 8px",borderRadius:6,border:"0.5px solid #D1D5DB",background:"#FFFFFF",color:"#111827",boxSizing:"border-box"}}/>
+                      </div>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
+                        <div>
+                          <label style={{fontSize:11,color:"#6B7280",display:"block",marginBottom:4}}>幅（px）</label>
+                          <input type="number" min={160} max={2000} step={10}
+                            value={selectedNode.groupW||360}
+                            onChange={e=>updNode("groupW",parseInt(e.target.value)||360)}
+                            style={{width:"100%",fontSize:12,padding:"5px 8px",borderRadius:6,border:"0.5px solid #D1D5DB",background:"#FFFFFF",color:"#111827",boxSizing:"border-box"}}/>
+                        </div>
+                        <div>
+                          <label style={{fontSize:11,color:"#6B7280",display:"block",marginBottom:4}}>高さ（px）</label>
+                          <input type="number" min={120} max={2000} step={10}
+                            value={selectedNode.groupH||240}
+                            onChange={e=>updNode("groupH",parseInt(e.target.value)||240)}
+                            style={{width:"100%",fontSize:12,padding:"5px 8px",borderRadius:6,border:"0.5px solid #D1D5DB",background:"#FFFFFF",color:"#111827",boxSizing:"border-box"}}/>
+                        </div>
+                      </div>
+                      <div style={{marginBottom:10}}>
+                        <label style={{fontSize:11,color:"#6B7280",display:"block",marginBottom:4}}>アイコンサイズ（px）</label>
+                        <div style={{display:"flex",alignItems:"center",gap:8}}>
+                          <input type="range" min={16} max={64} step={2}
+                            value={selectedNode.groupIconSize||22}
+                            onChange={e=>updNode("groupIconSize",parseInt(e.target.value))}
+                            style={{flex:1,accentColor:selectedNode.groupStyle?.color||"#888"}}/>
+                          <span style={{fontSize:12,color:"#6B7280",minWidth:30,textAlign:"right"}}>{selectedNode.groupIconSize||22}px</span>
+                        </div>
+                      </div>
+                      <div style={{fontSize:10,color:"#9CA3AF",marginBottom:14,padding:"8px 10px",background:"#F9FAFB",borderRadius:6,lineHeight:1.7}}>
+                        💡 ドラッグで移動 / 右下 <strong>⤡</strong> で縦横リサイズ<br/>
+                        右端・下端のハンドルで片方向のみ調整可能<br/>
+                        サービスアイコンをグループの上に重ねて配置できます
+                      </div>
+                      <button onClick={del} style={{width:"100%",background:"rgba(239,68,68,0.08)",color:"#DC2626",border:"0.5px solid #EF4444",borderRadius:7,padding:"7px 0",fontSize:12,cursor:"pointer"}}>削除</button>
+                    </>
+                  ) : (
+                    /* 通常サービスノードの設定パネル */
+                    <>
+                      <div style={{fontSize:22,fontWeight:700,color:"#FF9900",marginBottom:2}}>${cost.toFixed(2)}<span style={{fontSize:12,fontWeight:400,color:"#6B7280"}}>/月</span></div>
+                      <div style={{fontSize:11,color:"#6B7280",marginBottom:12}}>≈ ¥{Math.round(cost*usdJpy).toLocaleString()}</div>
+                      {fields.length>0
+                        ? fields.map(fld=>renderField(selectedNode,fld))
+                        : <div style={{fontSize:12,color:"#6B7280",padding:"8px 0"}}>{selectedNode.pricing.note||"設定項目なし"}</div>
+                      }
+                      {selectedNode.pricing.note&&fields.length>0&&(
+                        <div style={{marginTop:8,padding:"6px 8px",background:bg,borderRadius:6,fontSize:10,color,lineHeight:1.5}}>ℹ️ {selectedNode.pricing.note}</div>
+                      )}
+                      <button onClick={del} style={{width:"100%",background:"rgba(239,68,68,0.08)",color:"#DC2626",border:"0.5px solid #EF4444",borderRadius:7,padding:"7px 0",fontSize:12,cursor:"pointer",marginTop:10}}>削除</button>
+                    </>
                   )}
-                  <button onClick={del} style={{width:"100%",background:"rgba(239,68,68,0.08)",color:"#DC2626",border:"0.5px solid #EF4444",borderRadius:7,padding:"7px 0",fontSize:12,cursor:"pointer",marginTop:10}}>削除</button>
                 </div>
               </div>
             );
