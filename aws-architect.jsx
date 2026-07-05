@@ -197,6 +197,19 @@ const AWS_ICON_SVG = {
     <path d="M48 24 L56 24 L56 28 L60 24 L56 20 L56 24" fill="white" opacity="0.8"/>
     <path d="M48 36 L56 36 L60 40 L56 44 L56 40 L48 40" fill="white" opacity="0.8"/>
   </svg>`,
+  routetable: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="12" y="20" width="56" height="40" rx="4" fill="none" stroke="white" stroke-width="2.5"/>
+    <line x1="12" y1="32" x2="68" y2="32" stroke="white" stroke-width="1.5" opacity="0.5"/>
+    <line x1="12" y1="44" x2="68" y2="44" stroke="white" stroke-width="1.5" opacity="0.5"/>
+    <line x1="36" y1="20" x2="36" y2="60" stroke="white" stroke-width="1.5" opacity="0.5"/>
+    <text x="23" y="29" fill="white" font-size="8" font-weight="bold" font-family="Arial" opacity="0.9">DEST</text>
+    <text x="50" y="29" fill="white" font-size="8" font-weight="bold" font-family="Arial" opacity="0.9">TARGET</text>
+    <text x="14" y="41" fill="white" font-size="7" font-family="Arial" opacity="0.75">0.0.0.0/0</text>
+    <text x="38" y="41" fill="white" font-size="7" font-family="Arial" opacity="0.75">igw-xxx</text>
+    <text x="14" y="53" fill="white" font-size="7" font-family="Arial" opacity="0.75">10.0.0.0/16</text>
+    <text x="38" y="53" fill="white" font-size="7" font-family="Arial" opacity="0.75">local</text>
+  </svg>`,
   az: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
     <rect width="80" height="80" rx="12" fill="${c}"/>
     <rect x="10" y="12" width="60" height="56" rx="6" fill="none" stroke="white" stroke-width="2.5" stroke-dasharray="10 4"/>
@@ -640,6 +653,8 @@ const AWS_SERVICES = {
       { id: "az", name: "Availability Zone", icon: "🏢", desc: "アベイラビリティゾーン",
         pricing: { unit: "無料", base: 0, note: "AZ自体は無料。配置するリソースの料金のみ発生" }, nodeType:"group",
         groupStyle:{ color:"#2E73B8", fillOpacity:0.05, dash:"8 4", labelPos:"top" } },
+      { id: "routetable", name: "Route Table", icon: "🗺️", desc: "サブネットのルーティング制御",
+        pricing: { unit: "無料", base: 0, note: "Route Table自体は完全無料。VPC・Subnet・IGW・NAT等は別途課金" } },
       { id: "igw", name: "Internet Gateway", icon: "🌐", desc: "VPC↔インターネット接続",
         pricing: { unit: "無料（データ転送は別途）", base: 0, note: "IGW自体は無料。アウトバウンド転送は$0.114/GB（東京）" } },
       { id: "natgateway", name: "NAT Gateway", icon: "🔄", desc: "プライベートサブネットの外向き通信",
@@ -955,7 +970,7 @@ function calcNodeCost(node, rf) {
 
 
 // ── Container-type nodes (resizable group boxes) ──────────────────────────────
-const CONTAINER_TYPES = new Set(["vpc","subnet","securitygroup","nacl","az","vpcendpoint"]);
+const CONTAINER_TYPES = new Set(["vpc","subnet","securitygroup","nacl","az","vpcendpoint","routetable"]);
 const CONTAINER_DEFAULTS = {
   vpc:           { w:500, h:360, label:"VPC" },
   subnet:        { w:300, h:240, label:"Subnet" },
@@ -1222,6 +1237,8 @@ const SERVICE_FIELDS = {
   ],
   igw:         [{ f:"dataGB", label:"アウトバウンド転送（GB/月）", type:"number", min:0,
                    note:"IGW経由のアウト転送は$0.114/GB（東京）" }],
+  routetable:  [{ f:"qty", label:"ルートテーブル数", type:"number", min:1 },
+                { f:"routeCount", label:"ルートエントリ数", type:"number", min:1 }],
   natgateway:  [{ f:"qty", label:"NAT Gateway数（AZごとに1つ推奨）", type:"number", min:1 },
                 { f:"dataGB", label:"処理データ（GB/月）", type:"number", min:0 }],
   vpcendpoint: [{ f:"instanceOption", label:"エンドポイントタイプ", type:"select",
@@ -1319,7 +1336,7 @@ function calcDetailedCost(node, rf) {
     cost = (node.instanceOption||0.25) * (node.hoursPerDay||24) * (node.daysPerMonth||30) * (node.qty||1) * rf;
   } else if (sid === "opensearch") {
     cost = ((node.instanceOption||0.098) * 730 * (node.qty||1) + (node.storageGB||0) * 0.096) * rf;
-  } else if (["subnet","securitygroup","nacl","enicard"].includes(sid)) {
+  } else if (["subnet","securitygroup","nacl","enicard","routetable"].includes(sid)) {
     cost = 0; // 無料
   } else if (sid === "igw") {
     cost = (node.dataGB||0) * 0.114 * rf;
@@ -1673,7 +1690,7 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region, usdJpy = DEF
     } else if (sid === "resolver") {
       add(`エンドポイント (${node.qty||2}ENI × 730h × $0.125)`, 0.125*730*(node.qty||2)*rf2);
       add(`DNSクエリ (${node.requestsM||0}M × $0.004/万)`, (node.requestsM||0)*0.4*rf2);
-    } else if (["subnet","securitygroup","nacl","enicard","vpc","iam"].includes(sid)) {
+    } else if (["subnet","securitygroup","nacl","enicard","vpc","iam","routetable"].includes(sid)) {
       lines.push({ label:"✅ このサービス自体は無料です", val:0 });
     }
 
@@ -1854,7 +1871,7 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region, usdJpy = DEF
               </div>
 
               {/* Network free service info panel */}
-              {["subnet","securitygroup","nacl","enicard","vpc","iam"].includes(selNode.serviceId) && (() => {
+              {["subnet","securitygroup","nacl","enicard","vpc","iam","routetable"].includes(selNode.serviceId) && (() => {
                 const infoMap = {
                   subnet: {
                     title:"Subnetの設計ポイント",
@@ -1887,6 +1904,18 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region, usdJpy = DEF
                       "🛡️ SGの外側の防衛層として、特定IPのブロックに有効",
                       "📌 1つのサブネットには1つのNACLのみ適用可",
                       "✅ デフォルトNACLはすべてのトラフィックを許可",
+                    ]
+                  },
+                  routetable: {
+                    title:"Route Tableのポイント",
+                    items:[
+                      "✅ Route Table自体は完全無料（VPCの基本コンポーネント）",
+                      "📌 各サブネットは必ず1つのルートテーブルに関連付けられる（デフォルトはメインルートテーブル）",
+                      "🌐 パブリックサブネット: 0.0.0.0/0 → Internet Gateway のルートを追加",
+                      "🔒 プライベートサブネット: 0.0.0.0/0 → NAT Gateway のルートを追加",
+                      "🔗 VPC Peering や Transit Gateway 経由のルートも追加可能",
+                      "⚠️ S3・DynamoDBへはGateway型VPC Endpointのルートを追加すると転送料無料",
+                      "📋 ルートは最長プレフィックスマッチで評価（より具体的なルートが優先）",
                     ]
                   },
                   enicard: {
@@ -1941,7 +1970,7 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region, usdJpy = DEF
               })()}
 
               {/* Pricing formula */}
-              {!["subnet","securitygroup","nacl","enicard","vpc","iam"].includes(selNode.serviceId) && (
+              {!["subnet","securitygroup","nacl","enicard","vpc","iam","routetable"].includes(selNode.serviceId) && (
               <div style={{ marginTop:16, padding:"12px 16px", background:"#FFFFFF", borderRadius:10, border:`0.5px solid ${color}30`, borderLeft:`4px solid ${color}` }}>
                 <div style={{ fontSize:11, fontWeight:600, color:"#6B7280", marginBottom:6 }}>💡 計算式</div>
                 <div style={{ fontSize:12, color:"#111827", lineHeight:1.7 }}>
@@ -2329,6 +2358,8 @@ export default function App() {
   const [panStart, setPanStart] = useState({x:0,y:0});
   const [showPreview, setShowPreview] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [textMode, setTextMode] = useState(false);
+  const [editingText, setEditingText] = useState(null);
   const [usdJpy, setUsdJpy] = useState(DEFAULT_USD_JPY);
   const [rateMode, setRateMode] = useState("manual"); // "auto" | "manual"
   const [rateFetching, setRateFetching] = useState(false);
@@ -2380,12 +2411,13 @@ export default function App() {
   // ── Canvas interaction ─────────────────────────────────────────────────────
   const handleCanvasMouseDown = useCallback((e) => {
     if (e.button !== 0) return;
+    if (textMode) return; // テキストモード中はパン不可（onClick で処理）
     if (e.target === canvasRef.current || e.target.tagName === "rect" && e.target.getAttribute("fill")==="url(#dotgrid)") {
       setSelected(null); setConnecting(null);
       setIsPanning(true);
       setPanStart({x: e.clientX - pan.x, y: e.clientY - pan.y});
     }
-  },[pan]);
+  },[pan, textMode]);
 
   const handleCanvasMouseMove = useCallback((e) => {
     if (isPanning) { setPan({x: e.clientX-panStart.x, y: e.clientY-panStart.y}); return; }
@@ -2395,9 +2427,21 @@ export default function App() {
       const my = (e.clientY - rect.top  - pan.y) / zoom;
       const dx = mx - resizing.startMx, dy = my - resizing.startMy;
       const mode = resizing.mode || "br";
-      const newW = mode==="b" ? resizing.startW : Math.max(200, resizing.startW + dx);
-      const newH = mode==="r" ? resizing.startH : Math.max(120, resizing.startH + dy);
-      setNodes(prev=>prev.map(n=>n.id===resizing.id?{...n,groupW:Math.round(newW),groupH:Math.round(newH)}:n));
+      const newW = mode==="b" ? resizing.startW : Math.max(resizing.isText?80:200, resizing.startW + dx);
+      const newH = mode==="r" ? resizing.startH : Math.max(resizing.isText?24:120, resizing.startH + dy);
+      if (resizing.isText) {
+        setNodes(prev=>prev.map(n=>n.id===resizing.id?{
+          ...n,
+          textWidth:  mode==="b" ? (n.textWidth||160)  : Math.round(newW),
+          textHeight: mode==="r" ? n.textHeight         : Math.round(newH),
+        }:n));
+      } else {
+        setNodes(prev=>prev.map(n=>n.id===resizing.id?{
+          ...n,
+          groupW: mode==="b" ? (n.groupW||360) : Math.round(newW),
+          groupH: mode==="r" ? (n.groupH||240) : Math.round(newH),
+        }:n));
+      }
       return;
     }
     if (!dragging) return;
@@ -2479,8 +2523,8 @@ export default function App() {
 
   useEffect(()=>{
     const onKey = e=>{
-      if (e.key==="Escape") setConnecting(null);
-      if ((e.key==="Delete"||e.key==="Backspace")&&selected&&document.activeElement.tagName!=="INPUT"&&document.activeElement.tagName!=="SELECT") del();
+      if (e.key==="Escape") { setConnecting(null); setTextMode(false); setEditingText(null); }
+      if ((e.key==="Delete"||e.key==="Backspace")&&selected&&!["INPUT","SELECT","TEXTAREA"].includes(document.activeElement.tagName)) del();
     };
     window.addEventListener("keydown",onKey);
     return ()=>window.removeEventListener("keydown",onKey);
@@ -2605,6 +2649,27 @@ export default function App() {
     borderRadius:7,padding:"8px 12px",fontSize:12,cursor:disabled?"not-allowed":"pointer",
     textAlign:"left",display:"flex",alignItems:"center",gap:8,
   });
+
+  // ── Text node ──────────────────────────────────────────────────────────────
+  const addTextNode = (x, y) => {
+    const id = `node-${Date.now()}`;
+    setNodes(prev => [...prev, {
+      id, nodeType:"text",
+      x, y,
+      textContent: "テキストを入力",
+      fontSize: 14,
+      fontColor: "#1F2937",
+      fontWeight: "normal",
+      textBg: "transparent",
+      textBgColor: "#FFF9C4",
+      textWidth: 160,
+      serviceId:"text", name:"テキスト", icon:"T",
+      desc:"", pricing:{unit:"",base:0},
+      qty:1, storageGB:0, dataGB:0, requestsM:0, instanceOption:0,
+    }]);
+    setTextMode(false);
+    return id;
+  };
 
   const handleExport = ()=>{
     if (nodes.length===0) return alert("サービスを追加してからPDF出力できます");
@@ -2840,6 +2905,14 @@ export default function App() {
             {/* Toolbar */}
             <div style={{position:"absolute",top:10,right:12,zIndex:10,display:"flex",gap:6,alignItems:"center"}}>
               {connecting && <div style={{background:"#FFFFFF",border:"1px solid #A78BFA",borderRadius:8,padding:"5px 12px",fontSize:12,color:"#7C3AED",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>接続先をクリック（Escでキャンセル）</div>}
+              {textMode && <div style={{background:"#FEF3C7",border:"1px solid #F59E0B",borderRadius:8,padding:"5px 12px",fontSize:12,color:"#92400E",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>キャンバスをクリックしてテキストを配置（Escでキャンセル）</div>}
+              {/* Text tool button */}
+              <button
+                onClick={()=>{ setTextMode(v=>!v); setConnecting(null); }}
+                title="テキストを追加"
+                style={{display:"flex",alignItems:"center",gap:5,background:textMode?"#FEF3C7":"#FFFFFF",color:textMode?"#92400E":"#4B5563",border:`1px solid ${textMode?"#F59E0B":"#D1D5DB"}`,borderRadius:8,padding:"5px 12px",fontSize:13,fontWeight:textMode?700:400,cursor:"pointer",boxShadow:"0 2px 8px rgba(0,0,0,0.06)"}}>
+                T テキスト
+              </button>
               <div style={{display:"flex",gap:4,background:"#FFFFFF",border:"0.5px solid #D1D5DB",borderRadius:8,padding:"4px",boxShadow:"0 2px 8px rgba(0,0,0,0.06)"}}>
                 <button onClick={()=>setZoom(z=>Math.min(3,z*1.2))} style={{background:"none",border:"none",color:"#4B5563",cursor:"pointer",fontSize:16,width:26,height:26}}>+</button>
                 <span style={{color:"#6B7280",fontSize:12,alignSelf:"center",minWidth:36,textAlign:"center"}}>{Math.round(zoom*100)}%</span>
@@ -2849,11 +2922,18 @@ export default function App() {
             </div>
 
             <svg ref={canvasRef}
-              style={{width:"100%",height:"100%",cursor:isPanning?"grabbing":dragging?"grabbing":"default"}}
+              style={{width:"100%",height:"100%",cursor: textMode ? "crosshair" : isPanning?"grabbing":dragging?"grabbing":"default"}}
               onMouseDown={handleCanvasMouseDown}
               onMouseMove={handleCanvasMouseMove}
               onMouseUp={handleCanvasMouseUp}
               onMouseLeave={handleCanvasMouseUp}
+              onClick={e=>{
+                if (!textMode) return;
+                const rect2 = canvasRef.current.getBoundingClientRect();
+                const x = (e.clientX - rect2.left - pan.x) / zoom;
+                const y = (e.clientY - rect2.top  - pan.y) / zoom;
+                addTextNode(x, y);
+              }}
               onDrop={handleDrop} onDragOver={e=>e.preventDefault()}>
               <defs>
                 <pattern id="dotgrid" width="24" height="24" patternUnits="userSpaceOnUse">
@@ -3038,7 +3118,77 @@ export default function App() {
                 })}
 
                 {/* ── Service nodes (rendered on top of groups) ── */}
-                {nodes.filter(n=>n.nodeType!=="group").map(node=>{
+                {/* ── Text nodes ── */}
+                {nodes.filter(n=>n.nodeType==="text").map(node=>{
+                  const isSel = selected===node.id;
+                  const W = node.textWidth || 160;
+                  const fs = node.fontSize || 14;
+                  const color = node.fontColor || "#1F2937";
+                  const fw = node.fontWeight || "normal";
+                  const hasBg = node.textBg === "fill";
+                  const bgColor = node.textBgColor || "#FFF9C4";
+                  const lines = (node.textContent||"テキスト").split("\n");
+                  const lineH = fs * 1.5;
+                  const autoH = lines.length * lineH + 12;
+                  const H = node.textHeight || autoH;
+                  return (
+                    <g key={node.id}>
+                      {/* ドラッグ可能な本体 */}
+                      <g transform={`translate(${node.x},${node.y})`}
+                        style={{cursor:dragging===node.id?"grabbing":"grab"}}
+                        onMouseDown={e=>handleNodeMouseDown(e,node.id)}
+                        onDoubleClick={e=>{
+                          e.stopPropagation();
+                          const r2=canvasRef.current.getBoundingClientRect();
+                          setEditingText({ id:node.id,
+                            screenX:node.x*zoom+pan.x+r2.left,
+                            screenY:node.y*zoom+pan.y+r2.top,
+                            w:W*zoom+60, h:Math.max(80,H*zoom+20),
+                          });
+                        }}>
+                        {hasBg && <rect width={W} height={H} rx={6} fill={bgColor} stroke={isSel?"#3B82F6":bgColor} strokeWidth={isSel?1.5:0}/>}
+                        {!hasBg && <rect x={-2} y={-2} width={W+4} height={H+4} rx={6} fill="none"
+                          stroke={isSel?"#3B82F6":"transparent"} strokeWidth={1.5}
+                          strokeDasharray={isSel?"4 2":"0"}/>}
+                        {lines.map((line,i)=>(
+                          <text key={i} x={6} y={8+(i+1)*lineH-lineH*0.25}
+                            fontSize={fs} fontWeight={fw} fill={color}
+                            style={{userSelect:"none",fontFamily:"'Hiragino Sans','Meiryo','Arial',sans-serif"}}>
+                            {line||" "}
+                          </text>
+                        ))}
+                        {isSel && (
+                          <text x={W/2} y={H+13} textAnchor="middle" fontSize={9} fill="#9CA3AF">ダブルクリックで編集</text>
+                        )}
+                        {/* 削除ボタン */}
+                        {isSel && (
+                          <g onClick={e=>{e.stopPropagation();del();}} style={{cursor:"pointer"}}>
+                            <circle cx={W+11} cy={0} r={11} fill="#FFFFFF" stroke="#EF4444" strokeWidth={1.5}/>
+                            <text x={W+11} y={4.5} textAnchor="middle" fontSize={12} fill="#EF4444" fontWeight="bold" style={{userSelect:"none"}}>✕</text>
+                          </g>
+                        )}
+                      </g>
+
+                      {/* ── リサイズハンドル（右下コーナーのみ） ── */}
+                      {isSel && (
+                        <g style={{cursor:"se-resize"}}
+                          onMouseDown={e=>{
+                            e.stopPropagation();
+                            const r2=canvasRef.current.getBoundingClientRect();
+                            const mx=(e.clientX-r2.left-pan.x)/zoom;
+                            const my=(e.clientY-r2.top-pan.y)/zoom;
+                            setResizing({id:node.id,mode:"br",startW:W,startH:H,startMx:mx,startMy:my,isText:true});
+                          }}>
+                          <rect x={node.x+W-5} y={node.y+H-5} width={10} height={10} rx={2}
+                            fill="#3B82F6" opacity={0.8}/>
+                        </g>
+                      )}
+                    </g>
+                  );
+                })}
+
+                {/* ── Service nodes ── */}
+                {nodes.filter(n=>n.nodeType!=="group"&&n.nodeType!=="text").map(node=>{
                   const {color}=categoryColor(node.serviceId);
                   const cost=calcNodeCost(node,rf);
                   const isSel=selected===node.id, isConn=connecting===node.id;
@@ -3112,6 +3262,45 @@ export default function App() {
                 </g>
               )}
             </svg>
+
+            {/* ── Text edit overlay ── */}
+            {editingText && (() => {
+              const node = nodes.find(n=>n.id===editingText.id);
+              if (!node) return null;
+              return (
+                <div style={{
+                  position:"absolute",
+                  left: editingText.screenX - canvasRef.current?.getBoundingClientRect().left,
+                  top:  editingText.screenY - canvasRef.current?.getBoundingClientRect().top,
+                  zIndex:999,
+                  background:"white",
+                  border:"2px solid #3B82F6",
+                  borderRadius:8,
+                  boxShadow:"0 8px 24px rgba(0,0,0,0.15)",
+                  padding:12,
+                  minWidth:220,
+                }}>
+                  <textarea autoFocus
+                    value={node.textContent||""}
+                    onChange={e=>setNodes(prev=>prev.map(n=>n.id===editingText.id?{...n,textContent:e.target.value}:n))}
+                    onKeyDown={e=>{ if(e.key==="Escape"||(e.key==="Enter"&&e.metaKey)) setEditingText(null); }}
+                    style={{
+                      width:"100%", minHeight:60, fontSize:node.fontSize||14,
+                      fontWeight:node.fontWeight||"normal",
+                      color:node.fontColor||"#1F2937",
+                      border:"none", outline:"none", resize:"both",
+                      fontFamily:"'Hiragino Sans','Meiryo','Arial',sans-serif",
+                      lineHeight:1.5, background:"transparent",
+                    }}/>
+                  <div style={{display:"flex",justifyContent:"flex-end",marginTop:6}}>
+                    <button onClick={()=>setEditingText(null)}
+                      style={{background:"#3B82F6",color:"white",border:"none",borderRadius:6,padding:"4px 14px",fontSize:12,cursor:"pointer",fontWeight:600}}>
+                      完了 (⌘Enter)
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Right panel */}
@@ -3119,6 +3308,91 @@ export default function App() {
             const {color,bg}=categoryColor(selectedNode.serviceId);
             const cost=calcNodeCost(selectedNode,rf);
             const fields=SERVICE_FIELDS[selectedNode.serviceId]||[];
+            const inp = {width:"100%",fontSize:12,padding:"5px 8px",borderRadius:6,border:"0.5px solid #D1D5DB",background:"#FFFFFF",color:"#111827",boxSizing:"border-box"};
+            const lbl = {fontSize:11,color:"#6B7280",display:"block",marginBottom:4};
+
+            // Text node panel
+            if (selectedNode.nodeType==="text") return (
+              <div style={{width:230,background:"#FFFFFF",borderLeft:"0.5px solid #E5E7EB",overflowY:"auto",flexShrink:0}}>
+                <div style={{background:"#FEF3C7",padding:"10px 12px",borderBottom:"0.5px solid #E5E7EB"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <span style={{fontSize:22,fontWeight:700,color:"#92400E"}}>T</span>
+                    <div>
+                      <div style={{fontWeight:700,fontSize:13,color:"#92400E"}}>テキスト</div>
+                      <div style={{fontSize:10,color:"#6B7280"}}>自由テキスト注釈</div>
+                    </div>
+                  </div>
+                </div>
+                <div style={{padding:12}}>
+                  <div style={{marginBottom:12}}>
+                    <label style={lbl}>テキスト内容</label>
+                    <textarea value={selectedNode.textContent||""}
+                      onChange={e=>updNode("textContent",e.target.value)}
+                      rows={4}
+                      style={{...inp, resize:"vertical", lineHeight:1.6, fontFamily:"inherit"}}/>
+                    <div style={{fontSize:10,color:"#9CA3AF",marginTop:3}}>改行はEnterで挿入。ダブルクリックでもキャンバス上で直接編集できます。</div>
+                  </div>
+                  <div style={{marginBottom:12}}>
+                    <label style={lbl}>フォントサイズ（px）</label>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <input type="range" min={8} max={64} step={1}
+                        value={selectedNode.fontSize||14}
+                        onChange={e=>updNode("fontSize",parseInt(e.target.value))}
+                        style={{flex:1,accentColor:"#3B82F6"}}/>
+                      <span style={{fontSize:12,color:"#6B7280",minWidth:28,textAlign:"right"}}>{selectedNode.fontSize||14}px</span>
+                    </div>
+                  </div>
+                  <div style={{marginBottom:12}}>
+                    <label style={lbl}>フォントの太さ</label>
+                    <div style={{display:"flex",gap:6}}>
+                      {[["normal","普通"],["bold","太字"]].map(([v,l])=>(
+                        <button key={v} onClick={()=>updNode("fontWeight",v)}
+                          style={{flex:1,padding:"5px 0",fontSize:11,fontWeight:v==="bold"?700:400,borderRadius:6,border:`1px solid ${selectedNode.fontWeight===v?"#3B82F6":"#D1D5DB"}`,background:selectedNode.fontWeight===v?"#EFF6FF":"#FFFFFF",color:selectedNode.fontWeight===v?"#1D4ED8":"#374151",cursor:"pointer"}}>
+                          {l}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{marginBottom:12}}>
+                    <label style={lbl}>文字色</label>
+                    <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                      <input type="color" value={selectedNode.fontColor||"#1F2937"}
+                        onChange={e=>updNode("fontColor",e.target.value)}
+                        style={{width:36,height:32,padding:2,border:"0.5px solid #D1D5DB",borderRadius:6,cursor:"pointer"}}/>
+                      <span style={{fontSize:11,color:"#6B7280"}}>{selectedNode.fontColor||"#1F2937"}</span>
+                    </div>
+                  </div>
+                  <div style={{marginBottom:12}}>
+                    <label style={lbl}>背景</label>
+                    <div style={{display:"flex",gap:6}}>
+                      {[["transparent","なし"],["fill","あり"]].map(([v,l])=>(
+                        <button key={v} onClick={()=>updNode("textBg",v)}
+                          style={{flex:1,padding:"5px 0",fontSize:11,borderRadius:6,border:`1px solid ${(selectedNode.textBg||"transparent")===v?"#3B82F6":"#D1D5DB"}`,background:(selectedNode.textBg||"transparent")===v?"#EFF6FF":"#FFFFFF",color:(selectedNode.textBg||"transparent")===v?"#1D4ED8":"#374151",cursor:"pointer"}}>
+                          {l}
+                        </button>
+                      ))}
+                    </div>
+                    {(selectedNode.textBg==="fill") && (
+                      <div style={{display:"flex",gap:6,alignItems:"center",marginTop:6}}>
+                        <input type="color" value={selectedNode.textBgColor||"#FFF9C4"}
+                          onChange={e=>updNode("textBgColor",e.target.value)}
+                          style={{width:36,height:28,padding:2,border:"0.5px solid #D1D5DB",borderRadius:6,cursor:"pointer"}}/>
+                        <span style={{fontSize:11,color:"#6B7280"}}>背景色</span>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{marginBottom:12}}>
+                    <label style={lbl}>テキストボックス幅（px）</label>
+                    <input type="number" min={80} max={800} step={10}
+                      value={selectedNode.textWidth||160}
+                      onChange={e=>updNode("textWidth",parseInt(e.target.value)||160)}
+                      style={inp}/>
+                  </div>
+                  <button onClick={del} style={{width:"100%",background:"rgba(239,68,68,0.08)",color:"#DC2626",border:"0.5px solid #EF4444",borderRadius:7,padding:"7px 0",fontSize:12,cursor:"pointer",marginTop:4}}>削除</button>
+                </div>
+              </div>
+            );
+
             return(
               <div style={{width:230,background:"#FFFFFF",borderLeft:"0.5px solid #E5E7EB",overflowY:"auto",flexShrink:0}}>
                 {/* Header */}
