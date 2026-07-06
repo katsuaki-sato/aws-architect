@@ -2904,7 +2904,7 @@ export default function App() {
           <div style={{flex:1,position:"relative",overflow:"hidden"}}>
             {/* Toolbar */}
             <div style={{position:"absolute",top:10,right:12,zIndex:10,display:"flex",gap:6,alignItems:"center"}}>
-              {connecting && <div style={{background:"#FFFFFF",border:"1px solid #A78BFA",borderRadius:8,padding:"5px 12px",fontSize:12,color:"#7C3AED",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>接続先をクリック（Escでキャンセル）</div>}
+              {connecting && <div style={{background:"#FEF3C7",border:"1px solid #F59E0B",borderRadius:8,padding:"5px 12px",fontSize:12,color:"#92400E",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>接続先のアイコンをクリック（Escでキャンセル）</div>}
               {textMode && <div style={{background:"#FEF3C7",border:"1px solid #F59E0B",borderRadius:8,padding:"5px 12px",fontSize:12,color:"#92400E",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>キャンバスをクリックしてテキストを配置（Escでキャンセル）</div>}
               {/* Text tool button */}
               <button
@@ -2973,17 +2973,41 @@ export default function App() {
                   const fr=nodes.find(n=>n.id===conn.from), to=nodes.find(n=>n.id===conn.to);
                   if(!fr||!to) return null;
                   const W=120,H=100;
-                  const dx=to.x-fr.x, dy=to.y-fr.y;
-                  let x1,y1,x2,y2,cp1x,cp1y,cp2x,cp2y;
-                  if(Math.abs(dx)>=Math.abs(dy)){
-                    x1=fr.x+W+10;y1=fr.y+H/2;x2=to.x-10;y2=to.y+H/2;
-                    const b=Math.max(40,Math.min(Math.abs(dx)*0.45,130));
-                    cp1x=x1+b;cp1y=y1;cp2x=x2-b;cp2y=y2;
-                  } else {
-                    x1=fr.x+W/2;y1=fr.y+H+10;x2=to.x+W/2;y2=to.y-10;
-                    const b=Math.max(40,Math.min(Math.abs(dy)*0.45,130));
-                    cp1x=x1;cp1y=y1+b;cp2x=x2;cp2y=y2-b;
+                  // 4ポート（上下左右）の中心座標
+                  const ports = {
+                    r: {x:fr.x+W,    y:fr.y+H/2 },
+                    l: {x:fr.x,      y:fr.y+H/2 },
+                    b: {x:fr.x+W/2,  y:fr.y+H   },
+                    t: {x:fr.x+W/2,  y:fr.y     },
+                  };
+                  const tports = {
+                    l: {x:to.x,      y:to.y+H/2 },
+                    r: {x:to.x+W,    y:to.y+H/2 },
+                    t: {x:to.x+W/2,  y:to.y     },
+                    b: {x:to.x+W/2,  y:to.y+H   },
+                  };
+                  // 出口×入口 の全組み合わせで最短距離を選ぶ
+                  let best=null, bestD=Infinity;
+                  for(const [sk,sp] of Object.entries(ports)){
+                    for(const [ek,ep] of Object.entries(tports)){
+                      // 方向的に逆向きの組み合わせは除外（右→右、左→左など）
+                      if(sk==="r"&&ek==="r") continue;
+                      if(sk==="l"&&ek==="l") continue;
+                      if(sk==="t"&&ek==="t") continue;
+                      if(sk==="b"&&ek==="b") continue;
+                      const d=Math.hypot(sp.x-ep.x, sp.y-ep.y);
+                      if(d<bestD){bestD=d;best={sp,ep,sk,ek};}
+                    }
                   }
+                  const {sp,ep,sk,ek}=best;
+                  // ポート方向に応じたベジェ制御点オフセット
+                  const OFFSET={r:[1,0],l:[-1,0],b:[0,1],t:[0,-1]};
+                  const bend=Math.max(40, Math.min(bestD*0.45, 140));
+                  const [ox1,oy1]=OFFSET[sk], [ox2,oy2]=OFFSET[ek];
+                  const cp1x=sp.x+ox1*bend, cp1y=sp.y+oy1*bend;
+                  const cp2x=ep.x+ox2*bend, cp2y=ep.y+oy2*bend;
+                  const x1=sp.x+ox1*8, y1=sp.y+oy1*8;
+                  const x2=ep.x+ox2*8, y2=ep.y+oy2*8;
                   const pd=`M${x1} ${y1} C${cp1x} ${cp1y} ${cp2x} ${cp2y} ${x2} ${y2}`;
                   const col=ARROW_COLORS[ci%ARROW_COLORS.length];
                   const mx=(x1+x2)/2+(cp1x-x1+cp2x-x2)*0.12;
@@ -3233,18 +3257,24 @@ export default function App() {
                         : <><rect x={(W-44)/2} y={82} width={44} height={14} rx={7} fill="rgba(16,185,129,0.12)" stroke="rgba(16,185,129,0.5)" strokeWidth="0.75"/>
                             <text x={W/2} y={92.5} textAnchor="middle" fontSize={8} fontWeight={800} fill="#10B981" letterSpacing="0.1em">FREE</text></>
                       }
-                      <g onClick={e=>handleConnect(e,node.id)} style={{cursor:"pointer"}}>
-                        <circle cx={W+14} cy={H/2} r={13} fill={isConn?`rgba(${rgb},0.85)`:"#FFFFFF"} stroke={isConn?color:`rgba(${rgb},0.5)`} strokeWidth="1.5" style={{filter:"drop-shadow(0 1px 3px rgba(0,0,0,0.15))"}}/>
-                        <text x={W+14} y={H/2+5} textAnchor="middle" fontSize={15} fill={isConn?"white":color} fontWeight="bold" style={{userSelect:"none"}}>{isConn?"●":"+"}</text>
-                      </g>
-                      <g onClick={e=>handleConnect(e,node.id)} style={{cursor:"pointer"}}>
-                        <circle cx={W/2} cy={H+14} r={13} fill="#FFFFFF" stroke={`rgba(${rgb},0.4)`} strokeWidth="1.5" style={{filter:"drop-shadow(0 1px 3px rgba(0,0,0,0.15))"}}/>
-                        <text x={W/2} y={H+18.5} textAnchor="middle" fontSize={15} fill={color} fontWeight="bold" style={{userSelect:"none"}}>+</text>
-                      </g>
+                      {/* 下ポート：選択中のみ表示 */}
+                      {isSel && (
+                        <g onClick={e=>handleConnect(e,node.id)} style={{cursor:"pointer"}}>
+                          <circle cx={W/2} cy={H+12} r={9} fill="#FFFFFF" stroke={color} strokeWidth="1.5" style={{filter:"drop-shadow(0 1px 3px rgba(0,0,0,0.15))"}}/> 
+                          <text x={W/2} y={H+16} textAnchor="middle" fontSize={12} fill={color} fontWeight="bold" style={{userSelect:"none"}}>+</text>
+                        </g>
+                      )}
+                      {/* 接続モード中：ノード全体クリックで接続完了 */}
+                      {connecting && connecting!==node.id && (
+                        <rect width={W} height={H} rx={16} fill={`rgba(${rgb},0.1)`}
+                          stroke={color} strokeWidth={2} strokeDasharray="4 2"
+                          style={{cursor:"crosshair"}}
+                          onMouseDown={e=>{e.stopPropagation(); handleConnect(e,node.id);}}/>
+                      )}
                       {isSel&&(
                         <g onClick={e=>{e.stopPropagation();del();}} style={{cursor:"pointer"}}>
-                          <circle cx={W-2} cy={2} r={13} fill="#FFFFFF" stroke="#EF4444" strokeWidth={1.5} style={{filter:"drop-shadow(0 1px 3px rgba(0,0,0,0.15))"}}/>
-                          <text x={W-2} y={7} textAnchor="middle" fontSize={13} fill="#EF4444" fontWeight="bold" style={{userSelect:"none"}}>✕</text>
+                          <circle cx={W-2} cy={2} r={9} fill="#FFFFFF" stroke="#EF4444" strokeWidth={1.2} style={{filter:"drop-shadow(0 1px 2px rgba(0,0,0,0.12))"}}/> 
+                          <text x={W-2} y={5.5} textAnchor="middle" fontSize={10} fill="#EF4444" fontWeight="bold" style={{userSelect:"none"}}>✕</text>
                         </g>
                       )}
                     </g>
