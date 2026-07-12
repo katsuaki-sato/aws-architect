@@ -123,6 +123,83 @@ const AWS_ICON_SVG = {
     <circle cx="40" cy="36" r="7" fill="none" stroke="white" stroke-width="2"/>
     <path d="M36 36 L40 40 L46 32" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
   </svg>`,
+  vpclink: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="10" y="28" width="22" height="24" rx="5" fill="none" stroke="white" stroke-width="2.5"/>
+    <rect x="48" y="28" width="22" height="24" rx="5" fill="none" stroke="white" stroke-width="2.5"/>
+    <line x1="32" y1="40" x2="48" y2="40" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="40" cy="40" r="5" fill="white"/>
+    <text x="21" y="44" text-anchor="middle" fill="white" font-size="8" font-weight="bold" font-family="Arial">VPC</text>
+    <text x="59" y="44" text-anchor="middle" fill="white" font-size="8" font-weight="bold" font-family="Arial">API</text>
+    <path d="M36 37 L40 40 L44 37" fill="none" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M36 43 L40 40 L44 43" fill="none" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>`,
+  // ── カスタム・外部サービス ──
+  custom_server: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="14" y="18" width="52" height="12" rx="3" fill="none" stroke="white" stroke-width="2"/>
+    <rect x="14" y="34" width="52" height="12" rx="3" fill="none" stroke="white" stroke-width="2"/>
+    <rect x="14" y="50" width="52" height="12" rx="3" fill="none" stroke="white" stroke-width="2"/>
+    <circle cx="24" cy="24" r="2.5" fill="white"/><circle cx="24" cy="40" r="2.5" fill="white"/><circle cx="24" cy="56" r="2.5" fill="white"/>
+    <rect x="32" y="21" width="26" height="6" rx="2" fill="white" opacity="0.4"/>
+    <rect x="32" y="37" width="26" height="6" rx="2" fill="white" opacity="0.4"/>
+    <rect x="32" y="53" width="16" height="6" rx="2" fill="white" opacity="0.4"/>
+  </svg>`,
+  custom_db: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <ellipse cx="40" cy="24" rx="20" ry="7" fill="white" opacity="0.9"/>
+    <line x1="20" y1="24" x2="20" y2="56" stroke="white" stroke-width="2.5"/>
+    <line x1="60" y1="24" x2="60" y2="56" stroke="white" stroke-width="2.5"/>
+    <ellipse cx="40" cy="38" rx="20" ry="7" fill="none" stroke="white" stroke-width="2"/>
+    <ellipse cx="40" cy="56" rx="20" ry="7" fill="white" opacity="0.2"/>
+    <ellipse cx="40" cy="56" rx="20" ry="7" fill="none" stroke="white" stroke-width="2.5"/>
+  </svg>`,
+  custom_client: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="14" y="16" width="52" height="36" rx="5" fill="none" stroke="white" stroke-width="2.5"/>
+    <line x1="14" y1="44" x2="66" y2="44" stroke="white" stroke-width="2"/>
+    <rect x="28" y="52" width="24" height="4" rx="2" fill="white" opacity="0.7"/>
+    <line x1="40" y1="52" x2="40" y2="56" stroke="white" stroke-width="2"/>
+    <rect x="22" y="22" width="36" height="16" rx="2" fill="white" opacity="0.2"/>
+  </svg>`,
+  custom_mobile: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="26" y="12" width="28" height="56" rx="7" fill="none" stroke="white" stroke-width="2.5"/>
+    <circle cx="40" cy="60" r="3" fill="white" opacity="0.7"/>
+    <rect x="32" y="18" width="16" height="2" rx="1" fill="white" opacity="0.5"/>
+    <rect x="30" y="24" width="20" height="28" rx="2" fill="white" opacity="0.2"/>
+  </svg>`,
+  custom_api: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="12" y="26" width="56" height="28" rx="6" fill="none" stroke="white" stroke-width="2.5"/>
+    <text x="40" y="45" text-anchor="middle" fill="white" font-size="15" font-weight="bold" font-family="Arial">API</text>
+    <line x1="12" y1="38" x2="68" y2="38" stroke="white" stroke-width="1.5" opacity="0.4"/>
+  </svg>`,
+  custom_user: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <circle cx="40" cy="30" r="13" fill="none" stroke="white" stroke-width="2.5"/>
+    <circle cx="40" cy="30" r="6" fill="white" opacity="0.8"/>
+    <path d="M18 64 C18 50 28 44 40 44 C52 44 62 50 62 64" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`,
+  custom_internet: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <circle cx="40" cy="40" r="24" fill="none" stroke="white" stroke-width="2.5"/>
+    <ellipse cx="40" cy="40" rx="11" ry="24" fill="none" stroke="white" stroke-width="1.5"/>
+    <line x1="16" y1="40" x2="64" y2="40" stroke="white" stroke-width="1.5"/>
+    <line x1="18" y1="30" x2="62" y2="30" stroke="white" stroke-width="1" opacity="0.6"/>
+    <line x1="18" y1="50" x2="62" y2="50" stroke="white" stroke-width="1" opacity="0.6"/>
+  </svg>`,
+  custom_saas: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <path d="M20 48 Q20 36 30 34 Q28 20 42 20 Q54 20 56 32 Q66 32 64 44 Q64 52 56 52 L24 52 Q16 52 20 48 Z" fill="none" stroke="white" stroke-width="2.5"/>
+    <text x="40" y="45" text-anchor="middle" fill="white" font-size="10" font-weight="bold" font-family="Arial">SaaS</text>
+  </svg>`,
+  custom_box: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="16" y="16" width="48" height="48" rx="8" fill="none" stroke="white" stroke-width="2.5" stroke-dasharray="6 3"/>
+    <text x="40" y="36" text-anchor="middle" fill="white" font-size="18" font-family="Arial">?</text>
+    <text x="40" y="52" text-anchor="middle" fill="white" font-size="9" font-family="Arial" opacity="0.8">Custom</text>
+  </svg>`,
   // ── Database ──
   rds: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
     <rect width="80" height="80" rx="12" fill="${c}"/>
@@ -176,9 +253,25 @@ const AWS_ICON_SVG = {
     <rect x="10" y="14" width="60" height="52" rx="4" fill="none" stroke="white" stroke-width="2.5" stroke-dasharray="4 2"/>
     <rect x="18" y="22" width="26" height="36" rx="3" fill="white" opacity="0.35"/>
     <rect x="18" y="22" width="26" height="36" rx="3" fill="none" stroke="white" stroke-width="2"/>
-    <rect x="48" y="22" width="16" height="16" rx="3" fill="white" opacity="0.2"/>
-    <rect x="48" y="22" width="16" height="16" rx="3" fill="none" stroke="white" stroke-width="2" stroke-dasharray="3 2"/>
     <text x="31" y="44" text-anchor="middle" fill="white" font-size="10" font-weight="bold" font-family="Arial">SUB</text>
+  </svg>`,
+  "subnet-public": (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="10" y="16" width="60" height="48" rx="4" fill="none" stroke="white" stroke-width="2.5" stroke-dasharray="6 3"/>
+    <rect x="16" y="22" width="48" height="36" rx="3" fill="white" opacity="0.12"/>
+    <circle cx="40" cy="34" r="10" fill="none" stroke="white" stroke-width="2"/>
+    <path d="M40 24 C44 28 46 31 46 34 C46 37 44 40 40 44 C36 40 34 37 34 34 C34 31 36 28 40 24Z" fill="none" stroke="white" stroke-width="1.5"/>
+    <line x1="30" y1="34" x2="50" y2="34" stroke="white" stroke-width="1.5"/>
+    <text x="40" y="56" text-anchor="middle" fill="white" font-size="9" font-weight="bold" font-family="Arial">PUBLIC</text>
+  </svg>`,
+  "subnet-private": (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="10" y="16" width="60" height="48" rx="4" fill="none" stroke="white" stroke-width="2.5" stroke-dasharray="6 3"/>
+    <rect x="16" y="22" width="48" height="36" rx="3" fill="white" opacity="0.10"/>
+    <rect x="28" y="30" width="24" height="16" rx="3" fill="none" stroke="white" stroke-width="2"/>
+    <path d="M32 30 L32 26 C32 21 48 21 48 26 L48 30" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="40" cy="38" r="3" fill="white"/>
+    <text x="40" y="56" text-anchor="middle" fill="white" font-size="9" font-weight="bold" font-family="Arial">PRIVATE</text>
   </svg>`,
   securitygroup: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
     <rect width="80" height="80" rx="12" fill="${c}"/>
@@ -247,6 +340,16 @@ const AWS_ICON_SVG = {
     <text x="22" y="44" text-anchor="middle" fill="white" font-size="10" font-weight="bold" font-family="Arial">API</text>
     <text x="50" y="38" text-anchor="middle" fill="white" font-size="8" font-family="Arial">GET</text>
     <text x="50" y="50" text-anchor="middle" fill="white" font-size="8" font-family="Arial">POST</text>
+  </svg>`,
+  vpclink: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="8" y="28" width="22" height="24" rx="4" fill="none" stroke="white" stroke-width="2.5"/>
+    <rect x="50" y="28" width="22" height="24" rx="4" fill="none" stroke="white" stroke-width="2.5"/>
+    <text x="19" y="43" text-anchor="middle" fill="white" font-size="8" font-weight="bold" font-family="Arial">API</text>
+    <text x="61" y="43" text-anchor="middle" fill="white" font-size="8" font-weight="bold" font-family="Arial">VPC</text>
+    <line x1="30" y1="40" x2="50" y2="40" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M44 36 L50 40 L44 44" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="14" y="24" width="52" height="32" rx="8" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
   </svg>`,
   route53: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
     <rect width="80" height="80" rx="12" fill="${c}"/>
@@ -641,9 +744,15 @@ const AWS_SERVICES = {
       { id: "vpc", name: "VPC", icon: "🔒", desc: "仮想ネットワーク",
         pricing: { unit: "無料", base: 0, note: "VPC自体は無料（最大5個まで）" }, nodeType:"group",
         groupStyle:{ color:"#8C4FFF", fillOpacity:0.04, dash:"10 5", labelPos:"top" } },
-      { id: "subnet", name: "Subnet", icon: "🗃️", desc: "サブネット（Public/Private）",
+      { id: "subnet", name: "Subnet", icon: "🗃️", desc: "サブネット（汎用）",
         pricing: { unit: "無料", base: 0, note: "Subnet自体は無料。NAT Gatewayなど通過するリソースに課金" }, nodeType:"group",
         groupStyle:{ color:"#3F8624", fillOpacity:0.06, dash:"6 3", labelPos:"top" } },
+      { id: "subnet-public", name: "Subnet (Public)", icon: "🌐", desc: "パブリックサブネット（インターネット接続あり）",
+        pricing: { unit: "無料", base: 0, note: "パブリックサブネット。IGW経由でインターネット接続可。ALB・Bastionなどを配置" }, nodeType:"group",
+        groupStyle:{ color:"#16A34A", fillOpacity:0.07, dash:"6 3", labelPos:"top" } },
+      { id: "subnet-private", name: "Subnet (Private)", icon: "🔒", desc: "プライベートサブネット（外部公開なし）",
+        pricing: { unit: "無料", base: 0, note: "プライベートサブネット。NAT Gateway経由でアウトバウンドのみ可。EC2・RDS・ECSなどを配置" }, nodeType:"group",
+        groupStyle:{ color:"#2563EB", fillOpacity:0.07, dash:"6 3", labelPos:"top" } },
       { id: "securitygroup", name: "Security Group", icon: "🔐", desc: "仮想ファイアウォール（インスタンス単位）",
         pricing: { unit: "無料", base: 0, note: "Security Group自体は無料。ルール数・SG数に制限あり" }, nodeType:"group",
         groupStyle:{ color:"#DD344C", fillOpacity:0.04, dash:"4 3", labelPos:"top" } },
@@ -679,6 +788,11 @@ const AWS_SERVICES = {
         pricing: { unit: "GB転送", base: 0.114, freeGB: 1024 } },
       { id: "apigateway", name: "API Gateway", icon: "🚪", desc: "API管理",
         pricing: { unit: "100万コール", base: 3.5, freeLimit: 1000000 } },
+      { id: "vpclink", name: "VPC Link", icon: "🔗", desc: "API Gateway→VPC内リソース接続",
+        pricing: { unit: "時間", base: 0.01, options: [
+          { label: "HTTP API用 $0.01/h（約$7.20/月）", value: 0.01 },
+          { label: "REST API用 $0.025/h（約$18/月）", value: 0.025 },
+        ], hoursPerMonth: 730, note: "トラフィック量に関係なく24時間365日課金。REST API用はNLBが別途必要（$0.008/h〜）" } },
       { id: "route53", name: "Route 53", icon: "🗺️", desc: "DNS管理",
         pricing: { unit: "ゾーン/月", base: 0.5 } },
       { id: "directconnect", name: "Direct Connect", icon: "📶", desc: "専用線接続",
@@ -697,6 +811,11 @@ const AWS_SERVICES = {
         pricing: { unit: "エンドポイント/h+GB", base: 0.395, dataProcessing: 0.065, hoursPerMonth: 730, note: "$0.395/h（エンドポイント）+ $0.065/GB処理" } },
       { id: "resolver", name: "Route 53 Resolver", icon: "🔍", desc: "DNS Resolver / ハイブリッドDNS",
         pricing: { unit: "エンドポイント/h+クエリ", base: 0.125, queryPrice: 0.004, hoursPerMonth: 730, note: "$0.125/h（エンドポイント）+ $0.004/万クエリ" } },
+      { id: "vpclink", name: "VPC Link", icon: "🔗", desc: "API GatewayからVPC内リソースへのプライベート接続",
+        pricing: { unit: "時間", base: 0.01, options: [
+          { label: "HTTP API VPC Link ($0.01/h ≈ $7.20/月)", value: 0.01 },
+          { label: "REST API VPC Link ($0.025/h ≈ $18/月)", value: 0.025 },
+        ], hoursPerMonth: 730, note: "API GatewayとVPC内のALB/NLB/App Runnerを接続。REST API用は$0.025/h、HTTP API用は$0.01/h。NLB/ALBの料金は別途発生" } },
     ]
   },
   integration: {
@@ -932,6 +1051,20 @@ const AWS_SERVICES = {
       { id: "locationservice", name: "Location Service", icon: "🗺️", desc: "地図・位置情報",
         pricing: { unit: "APIリクエスト", base: 0.0004, note: "$0.40/千リクエスト" } },
     ]
+  },
+  custom: {
+    label: "カスタム・外部サービス", color: "#64748B", bg: "#F1F5F9",
+    services: [
+      { id: "custom_server",   name: "サーバー",       icon: "🖥️", desc: "汎用サーバー・オンプレミス", pricing: { unit: "無料", base: 0, note: "料金計算対象外" } },
+      { id: "custom_db",       name: "データベース",   icon: "🗄️", desc: "汎用データベース",           pricing: { unit: "無料", base: 0, note: "料金計算対象外" } },
+      { id: "custom_client",   name: "クライアント",   icon: "💻", desc: "ユーザー端末・ブラウザ",     pricing: { unit: "無料", base: 0, note: "料金計算対象外" } },
+      { id: "custom_mobile",   name: "モバイル",       icon: "📱", desc: "スマートフォン・タブレット",  pricing: { unit: "無料", base: 0, note: "料金計算対象外" } },
+      { id: "custom_api",      name: "外部API",        icon: "🔌", desc: "サードパーティAPI・SaaS",    pricing: { unit: "無料", base: 0, note: "料金計算対象外" } },
+      { id: "custom_user",     name: "ユーザー",       icon: "👤", desc: "エンドユーザー",             pricing: { unit: "無料", base: 0, note: "料金計算対象外" } },
+      { id: "custom_internet", name: "インターネット", icon: "🌐", desc: "インターネット・外部ネット",  pricing: { unit: "無料", base: 0, note: "料金計算対象外" } },
+      { id: "custom_saas",     name: "SaaS",          icon: "☁️", desc: "外部SaaSサービス",           pricing: { unit: "無料", base: 0, note: "料金計算対象外" } },
+      { id: "custom_box",      name: "カスタム",       icon: "⬜", desc: "カスタム汎用ノード（名前変更可）", pricing: { unit: "無料", base: 0, note: "料金計算対象外" } },
+    ]
   }
 };
 
@@ -970,7 +1103,7 @@ function calcNodeCost(node, rf) {
 
 
 // ── Container-type nodes (resizable group boxes) ──────────────────────────────
-const CONTAINER_TYPES = new Set(["vpc","subnet","securitygroup","nacl","az","vpcendpoint","routetable"]);
+const CONTAINER_TYPES = new Set(["vpc","subnet","subnet-public","subnet-private","securitygroup","nacl","az","vpcendpoint","routetable"]);
 const CONTAINER_DEFAULTS = {
   vpc:           { w:500, h:360, label:"VPC" },
   subnet:        { w:300, h:240, label:"Subnet" },
@@ -1257,6 +1390,11 @@ const SERVICE_FIELDS = {
                     { f:"dataGB", label:"処理データ（GB/月）", type:"number", min:0 }],
   resolver:    [{ f:"qty", label:"Resolverエンドポイント数（ENI数）", type:"number", min:2 },
                 { f:"requestsM", label:"DNSクエリ数（百万/月）", type:"number", min:0 }],
+  vpclink:     [{ f:"instanceOption", label:"VPC Linkタイプ", type:"select", options:[
+                  { label:"HTTP API VPC Link ($0.01/h ≈ $7.20/月)", value:0.01 },
+                  { label:"REST API VPC Link ($0.025/h ≈ $18.00/月)", value:0.025 },
+                ]},
+                { f:"qty", label:"VPC Link数", type:"number", min:1 }],
 };
 
 // detailed cost calculator using extended fields
@@ -1359,6 +1497,9 @@ function calcDetailedCost(node, rf) {
     cost = (0.395 * 730 * (node.qty||1) + (node.dataGB||0) * 0.065) * rf;
   } else if (sid === "resolver") {
     cost = (0.125 * 730 * (node.qty||2) + (node.requestsM||0) * 0.4) * rf;
+  } else if (sid === "vpclink") {
+    const rate = node.instanceOption || 0.01;
+    cost = rate * 730 * (node.qty||1) * rf;
   } else if (sid === "alb") {
     const hourly = 0.008 * (node.qty||1);
     const lcuCost = (node.lcuPerHour||1) * 0.008 * 730;
@@ -1690,7 +1831,12 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region, usdJpy = DEF
     } else if (sid === "resolver") {
       add(`エンドポイント (${node.qty||2}ENI × 730h × $0.125)`, 0.125*730*(node.qty||2)*rf2);
       add(`DNSクエリ (${node.requestsM||0}M × $0.004/万)`, (node.requestsM||0)*0.4*rf2);
-    } else if (["subnet","securitygroup","nacl","enicard","vpc","iam","routetable"].includes(sid)) {
+    } else if (sid === "vpclink") {
+      const rate = node.instanceOption || 0.01;
+      const typeLabel = rate === 0.025 ? "REST API" : "HTTP API";
+      add(`${typeLabel} VPC Link (${node.qty||1}個 × 730h × $${rate})`, rate*730*(node.qty||1)*rf2);
+      lines.push({ label:"ℹ️ 接続先のNLB/ALBの料金は別途発生します", val:0 });
+    } else if (["subnet","subnet-public","subnet-private","securitygroup","nacl","enicard","vpc","iam","routetable"].includes(sid)) {
       lines.push({ label:"✅ このサービス自体は無料です", val:0 });
     }
 
@@ -1871,7 +2017,7 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region, usdJpy = DEF
               </div>
 
               {/* Network free service info panel */}
-              {["subnet","securitygroup","nacl","enicard","vpc","iam","routetable"].includes(selNode.serviceId) && (() => {
+              {["subnet","subnet-public","subnet-private","securitygroup","nacl","enicard","vpc","iam","routetable"].includes(selNode.serviceId) && (() => {
                 const infoMap = {
                   subnet: {
                     title:"Subnetの設計ポイント",
@@ -1882,6 +2028,28 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region, usdJpy = DEF
                       "⚠️ 各サブネットは1つのAZに属する。マルチAZ構成では各AZにサブネットを作成",
                       "💡 AWSがサブネット内の5つのIPを予約（最初の4個 + 最後の1個）",
                       "🔄 Public Subnetには自動パブリックIP割り当てを有効化推奨",
+                    ]
+                  },
+                  "subnet-public": {
+                    title:"Public Subnet（パブリックサブネット）",
+                    items:[
+                      "🌐 Internet Gateway (IGW) へのルートを持つサブネット",
+                      "📌 配置するリソース: ALB・NAT Gateway・Bastion Host・踏み台EC2",
+                      "🔄 EC2に自動パブリックIP割り当てを有効化すると直接インターネット通信可",
+                      "⚠️ データベース・アプリサーバーはPrivate Subnetに置くべき",
+                      "💡 AWSがサブネット内の5つのIPを予約（最初の4個 + 最後の1個）",
+                      "🛡️ Security GroupとNACLで不要なインバウンドを制限することが重要",
+                    ]
+                  },
+                  "subnet-private": {
+                    title:"Private Subnet（プライベートサブネット）",
+                    items:[
+                      "🔒 Internet Gatewayへの直接ルートを持たないサブネット",
+                      "📌 配置するリソース: EC2・ECS・RDS・ElastiCache・Lambda（VPC内）",
+                      "🔄 アウトバウンド通信はNAT Gateway（Public Subnet内）を経由",
+                      "💰 NAT Gatewayは$0.062/h + $0.062/GB。同一AZに配置するとAZ間転送料を節約",
+                      "💡 S3・DynamoDBへはGateway型VPC Endpointを使うとNAT料金不要（無料）",
+                      "🛡️ 外部から直接アクセス不可のため、ALB経由でトラフィックを受け取る構成が一般的",
                     ]
                   },
                   securitygroup: {
@@ -1970,7 +2138,7 @@ function CostTab({ nodes, setNodes, rf, totalUSD, totalJPY, region, usdJpy = DEF
               })()}
 
               {/* Pricing formula */}
-              {!["subnet","securitygroup","nacl","enicard","vpc","iam","routetable"].includes(selNode.serviceId) && (
+              {!["subnet","subnet-public","subnet-private","securitygroup","nacl","enicard","vpc","iam","routetable"].includes(selNode.serviceId) && (
               <div style={{ marginTop:16, padding:"12px 16px", background:"#FFFFFF", borderRadius:10, border:`0.5px solid ${color}30`, borderLeft:`4px solid ${color}` }}>
                 <div style={{ fontSize:11, fontWeight:600, color:"#6B7280", marginBottom:6 }}>💡 計算式</div>
                 <div style={{ fontSize:12, color:"#111827", lineHeight:1.7 }}>
@@ -2360,6 +2528,8 @@ export default function App() {
   const [exporting, setExporting] = useState(false);
   const [textMode, setTextMode] = useState(false);
   const [editingText, setEditingText] = useState(null);
+  const [showConnections, setShowConnections] = useState(true);
+  const [editingNodeName, setEditingNodeName] = useState(null); // { id, x, y }
   const [usdJpy, setUsdJpy] = useState(DEFAULT_USD_JPY);
   const [rateMode, setRateMode] = useState("manual"); // "auto" | "manual"
   const [rateFetching, setRateFetching] = useState(false);
@@ -2427,15 +2597,29 @@ export default function App() {
       const my = (e.clientY - rect.top  - pan.y) / zoom;
       const dx = mx - resizing.startMx, dy = my - resizing.startMy;
       const mode = resizing.mode || "br";
-      const newW = mode==="b" ? resizing.startW : Math.max(resizing.isText?80:200, resizing.startW + dx);
-      const newH = mode==="r" ? resizing.startH : Math.max(resizing.isText?24:120, resizing.startH + dy);
       if (resizing.isText) {
+        const newW = mode==="b" ? resizing.startW : Math.max(80,  resizing.startW + dx);
+        const newH = mode==="r" ? resizing.startH : Math.max(24,  resizing.startH + dy);
         setNodes(prev=>prev.map(n=>n.id===resizing.id?{
           ...n,
           textWidth:  mode==="b" ? (n.textWidth||160)  : Math.round(newW),
           textHeight: mode==="r" ? n.textHeight         : Math.round(newH),
         }:n));
+      } else if (resizing.isNode) {
+        // 初期比率を維持してリサイズ（縮小も可）
+        // dxとdyのうち絶対値が大きい方を採用してスケールを決定
+        const delta = Math.abs(dx) >= Math.abs(dy) ? dx : dy;
+        const baseSize = resizing.startW; // 基準は初期W
+        const newSize = Math.max(40, Math.round(baseSize + delta));
+        const ratio = resizing.startH / resizing.startW; // 初期H/W比率
+        setNodes(prev=>prev.map(n=>n.id===resizing.id?{
+          ...n,
+          nodeW: newSize,
+          nodeH: Math.round(newSize * ratio),
+        }:n));
       } else {
+        const newW = mode==="b" ? resizing.startW : Math.max(200, resizing.startW + dx);
+        const newH = mode==="r" ? resizing.startH : Math.max(120, resizing.startH + dy);
         setNodes(prev=>prev.map(n=>n.id===resizing.id?{
           ...n,
           groupW: mode==="b" ? (n.groupW||360) : Math.round(newW),
@@ -2523,7 +2707,7 @@ export default function App() {
 
   useEffect(()=>{
     const onKey = e=>{
-      if (e.key==="Escape") { setConnecting(null); setTextMode(false); setEditingText(null); }
+      if (e.key==="Escape") { setConnecting(null); setTextMode(false); setEditingText(null); setEditingNodeName(null); }
       if ((e.key==="Delete"||e.key==="Backspace")&&selected&&!["INPUT","SELECT","TEXTAREA"].includes(document.activeElement.tagName)) del();
     };
     window.addEventListener("keydown",onKey);
@@ -2688,14 +2872,39 @@ export default function App() {
   const ARROW_COLORS = ["#FF9900","#60A5FA","#34D399","#F472B6","#A78BFA"];
 
   // ── Right-panel field renderer ───────────────────────────────────────────────
+  // Subnet type → groupStyle mapping
+  const SUBNET_STYLES = {
+    public:   { color:"#0EA5E9", fillOpacity:0.08, dash:"6 3", label:"Public Subnet" },
+    private:  { color:"#10B981", fillOpacity:0.08, dash:"6 3", label:"Private Subnet" },
+    isolated: { color:"#8B5CF6", fillOpacity:0.08, dash:"4 4", label:"Isolated Subnet" },
+  };
+
   const renderField = (node,fld)=>{
     const val = node[fld.f] ?? (fld.type==="select"&&fld.options ? fld.options[0]?.value : fld.min??0);
     const inp = {width:"100%",fontSize:12,padding:"5px 8px",borderRadius:6,border:"0.5px solid #D1D5DB",background:"#FFFFFF",color:"#111827",boxSizing:"border-box",colorScheme:"light"};
+
+    const handleChange = (rawVal) => {
+      const v = isNaN(parseFloat(rawVal)) ? rawVal : parseFloat(rawVal);
+      updNode(fld.f, v);
+      // サブネットタイプ変更時は groupStyle も同時更新
+      if (fld.f === "subnetType" && node.nodeType === "group") {
+        const style = SUBNET_STYLES[rawVal];
+        if (style) {
+          setNodes(prev=>prev.map(n=>n.id===node.id ? {
+            ...n,
+            subnetType: rawVal,
+            groupStyle: { ...n.groupStyle, color: style.color, fillOpacity: style.fillOpacity, dash: style.dash },
+            groupLabel: style.label,
+          } : n));
+        }
+      }
+    };
+
     return (
       <div key={fld.f} style={{marginBottom:10}}>
         <label style={{fontSize:11,color:"#6B7280",display:"block",marginBottom:3}}>{fld.label}</label>
         {fld.type==="select"
-          ? <select value={val} onChange={e=>updNode(fld.f,isNaN(parseFloat(e.target.value))?e.target.value:parseFloat(e.target.value))} style={inp}>
+          ? <select value={val} onChange={e=>handleChange(e.target.value)} style={inp}>
               {(fld.options||node.pricing.options||[]).map(o=><option key={o.value} value={o.value} style={{background:"#FFFFFF",color:"#111827"}}>{o.label}</option>)}
             </select>
           : <input type="number" min={fld.min??0} max={fld.max} step={fld.step??1} value={val}
@@ -2906,7 +3115,13 @@ export default function App() {
             <div style={{position:"absolute",top:10,right:12,zIndex:10,display:"flex",gap:6,alignItems:"center"}}>
               {connecting && <div style={{background:"#FEF3C7",border:"1px solid #F59E0B",borderRadius:8,padding:"5px 12px",fontSize:12,color:"#92400E",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>接続先のアイコンをクリック（Escでキャンセル）</div>}
               {textMode && <div style={{background:"#FEF3C7",border:"1px solid #F59E0B",borderRadius:8,padding:"5px 12px",fontSize:12,color:"#92400E",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>キャンバスをクリックしてテキストを配置（Escでキャンセル）</div>}
-              {/* Text tool button */}
+              {/* Connection toggle button */}
+              <button
+                onClick={()=>setShowConnections(v=>!v)}
+                title={showConnections ? "矢印を非表示" : "矢印を表示"}
+                style={{display:"flex",alignItems:"center",gap:5,background:showConnections?"#FFFFFF":"#F3F4F6",color:showConnections?"#4B5563":"#9CA3AF",border:`1px solid ${showConnections?"#D1D5DB":"#E5E7EB"}`,borderRadius:8,padding:"5px 12px",fontSize:13,cursor:"pointer",boxShadow:"0 2px 8px rgba(0,0,0,0.06)",opacity:showConnections?1:0.7}}>
+                {showConnections ? "↔ 矢印ON" : "↔ 矢印OFF"}
+              </button>
               <button
                 onClick={()=>{ setTextMode(v=>!v); setConnecting(null); }}
                 title="テキストを追加"
@@ -2969,22 +3184,23 @@ export default function App() {
 
               <g transform={`translate(${pan.x},${pan.y}) scale(${zoom})`}>
                 {/* Connections */}
-                {connections.map((conn,ci)=>{
+                {showConnections && connections.map((conn,ci)=>{
                   const fr=nodes.find(n=>n.id===conn.from), to=nodes.find(n=>n.id===conn.to);
                   if(!fr||!to) return null;
-                  const W=120,H=100;
-                  // 4ポート（上下左右）の中心座標
+                  // ノードごとの実サイズを使用
+                  const frW=fr.nodeW||120, frH=fr.nodeH||100;
+                  const toW=to.nodeW||120, toH=to.nodeH||100;
                   const ports = {
-                    r: {x:fr.x+W,    y:fr.y+H/2 },
-                    l: {x:fr.x,      y:fr.y+H/2 },
-                    b: {x:fr.x+W/2,  y:fr.y+H   },
-                    t: {x:fr.x+W/2,  y:fr.y     },
+                    r: {x:fr.x+frW,    y:fr.y+frH/2 },
+                    l: {x:fr.x,        y:fr.y+frH/2 },
+                    b: {x:fr.x+frW/2,  y:fr.y+frH   },
+                    t: {x:fr.x+frW/2,  y:fr.y       },
                   };
                   const tports = {
-                    l: {x:to.x,      y:to.y+H/2 },
-                    r: {x:to.x+W,    y:to.y+H/2 },
-                    t: {x:to.x+W/2,  y:to.y     },
-                    b: {x:to.x+W/2,  y:to.y+H   },
+                    l: {x:to.x,        y:to.y+toH/2 },
+                    r: {x:to.x+toW,    y:to.y+toH/2 },
+                    t: {x:to.x+toW/2,  y:to.y       },
+                    b: {x:to.x+toW/2,  y:to.y+toH   },
                   };
                   // 出口×入口 の全組み合わせで最短距離を選ぶ
                   let best=null, bestD=Infinity;
@@ -3010,8 +3226,9 @@ export default function App() {
                   const x2=ep.x+ox2*8, y2=ep.y+oy2*8;
                   const pd=`M${x1} ${y1} C${cp1x} ${cp1y} ${cp2x} ${cp2y} ${x2} ${y2}`;
                   const col=ARROW_COLORS[ci%ARROW_COLORS.length];
-                  const mx=(x1+x2)/2+(cp1x-x1+cp2x-x2)*0.12;
-                  const my=(y1+y2)/2+(cp1y-y1+cp2y-y2)*0.12;
+                  // 三次ベジェ曲線の t=0.5 の点（常に曲線上に乗る）
+                  const mx = 0.125*x1 + 0.375*cp1x + 0.375*cp2x + 0.125*x2;
+                  const my = 0.125*y1 + 0.375*cp1y + 0.375*cp2y + 0.125*y2;
                   return(
                     <g key={conn.id}>
                       <path d={pd} fill="none" stroke={col} strokeWidth="14" opacity="0.04"/>
@@ -3021,10 +3238,13 @@ export default function App() {
                       <circle cx={x1} cy={y1} r={4.5} fill={col} opacity="0.9"/>
                       <circle cx={x2} cy={y2} r={4.5} fill={col} opacity="0.9"/>
                       <circle cx={mx} cy={my} r={3} fill={col} opacity="0.5" className="apulse"/>
-                      <g style={{cursor:"pointer"}} onClick={()=>setConnections(p=>p.filter(c=>c.id!==conn.id))}>
-                        <circle cx={mx} cy={my} r={13} fill="#FFFFFF" stroke={col} strokeWidth="1.5" opacity="0.97"/>
-                        <text x={mx} y={my+5} textAnchor="middle" fontSize="13" fontWeight="bold" fill={col} style={{userSelect:"none"}}>✕</text>
-                      </g>
+                      {/* 削除ボタン：接続元または接続先が選択中のときだけ表示 */}
+                      {(selected===conn.from || selected===conn.to) && (
+                        <g style={{cursor:"pointer"}} onClick={()=>setConnections(p=>p.filter(c=>c.id!==conn.id))}>
+                          <circle cx={mx} cy={my} r={11} fill="#FFFFFF" stroke={col} strokeWidth="1.5" opacity="0.97"/>
+                          <text x={mx} y={my+4.5} textAnchor="middle" fontSize="11" fontWeight="bold" fill={col} style={{userSelect:"none"}}>✕</text>
+                        </g>
+                      )}
                     </g>
                   );
                 })}
@@ -3217,64 +3437,117 @@ export default function App() {
                   const cost=calcNodeCost(node,rf);
                   const isSel=selected===node.id, isConn=connecting===node.id;
                   const iconSrc=awsIconSrc(node.serviceId,color);
-                  const W=120,H=100;
+                  // nodeW/nodeH でリサイズ対応（デフォルト 120×100）
+                  const W=node.nodeW||120, H=node.nodeH||100;
+                  const isCustom = node.serviceId.startsWith("custom_");
+                  const displayName = isCustom && node.customName ? node.customName : node.name;
+                  const displayIcon = isCustom && node.customIcon ? node.customIcon : null;
+                  // アイコンサイズ・フォントを W に比例させる
+                  const scale = W/120;
+                  const iconS = Math.round(48*scale);
+                  const iconOff = Math.round(24*scale);
+                  const iconY = Math.round(14*scale);
+                  const nameY = Math.round(76*scale);
+                  const badgeY = Math.round(82*scale);
+                  const badgeH = Math.round(14*scale);
+                  const badgeW = Math.round(76*scale);
+                  const nameFs = Math.max(8, Math.round(10*scale));
+                  const costFs = Math.max(7, Math.round(8.5*scale));
+                  const rx = Math.min(24, Math.round(16*scale));
                   const h2r=h=>{h=h.replace("#","");if(h.length===3)h=h.split("").map(c=>c+c).join("");return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];};
                   const [r,g,b]=h2r(color.startsWith("#")?color:"#FF9900");
                   const rgb=`${r},${g},${b}`;
                   const gid=`ng${node.id.replace(/\W/g,"")}`;
                   return(
-                    <g key={node.id} transform={`translate(${node.x},${node.y})`}
-                      style={{cursor:dragging===node.id?"grabbing":"grab"}}
-                      onMouseDown={e=>handleNodeMouseDown(e,node.id)}>
-                      <defs>
-                        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor={`rgba(${rgb},0.10)`}/>
-                          <stop offset="100%" stopColor="rgba(0,0,0,0)"/>
-                        </linearGradient>
-                        <clipPath id={`ct${gid}`}><rect x={0} y={0} width={W} height={16} rx={16}/></clipPath>
-                      </defs>
-                      {isSel&&<><rect x={-10} y={-10} width={W+20} height={H+20} rx={22} fill="none" stroke={`rgba(${rgb},0.6)`} strokeWidth="1.5" strokeDasharray="8 5" className="aspinr"/><rect x={-18} y={-18} width={W+36} height={H+36} rx={26} fill={`rgba(${rgb},0.06)`}/></>}
-                      {isConn&&<><rect x={-8} y={-8} width={W+16} height={H+16} rx={20} fill="none" stroke={`rgba(${rgb},0.9)`} strokeWidth="2" strokeDasharray="6 4" className="adash"/><rect x={-14} y={-14} width={W+28} height={H+28} rx={24} fill={`rgba(${rgb},0.08)`} className="apulse"/></>}
-                      <ellipse cx={W/2} cy={H+14} rx={48} ry={10} fill={`rgba(${rgb},0.15)`} style={{filter:"blur(6px)"}}/>
-                      <rect width={W} height={H} rx={16} fill="url(#cardGrad)" filter="url(#cardShadow)"/>
-                      <rect width={W} height={H} rx={16} fill={`url(#${gid})`}/>
-                      <rect x={2} y={2} width={W-4} height={H/2-4} rx={14} fill="rgba(255,255,255,0.4)"/>
-                      <rect width={W} height={H} rx={16} fill="none" stroke={isSel?"#FF9900":isConn?color:`rgba(${rgb},0.35)`} strokeWidth={isSel||isConn?1.8:1}/>
-                      <rect x={0} y={0} width={W} height={5} fill={color} opacity="0.95" clipPath={`url(#ct${gid})`}/>
-                      <rect x={14} y={0} width={W*0.4} height={5} fill="rgba(255,255,255,0.35)" clipPath={`url(#ct${gid})`}/>
-                      <rect x={W/2-26} y={12} width={52} height={52} rx={14} fill={`rgba(${rgb},0.12)`} stroke={`rgba(${rgb},0.32)`} strokeWidth="1"/>
-                      <rect x={W/2-26} y={12} width={52} height={52} rx={14} fill="rgba(255,255,255,0.3)"/>
-                      {iconSrc
-                        ? <image href={iconSrc} x={W/2-24} y={14} width={48} height={48}/>
-                        : <text x={W/2} y={46} textAnchor="middle" fontSize={28} fill={color}>{node.icon}</text>
-                      }
-                      <text x={W/2} y={76} textAnchor="middle" fontSize={10} fontWeight={700} fill="#1F2937" letterSpacing="0.025em">
-                        {node.name.length>16?node.name.slice(0,15)+"…":node.name}
-                      </text>
-                      {cost>0
-                        ? <><rect x={(W-76)/2} y={82} width={76} height={14} rx={7} fill={`rgba(${rgb},0.16)`} stroke={`rgba(${rgb},0.5)`} strokeWidth="0.75"/>
-                            <text x={W/2} y={92.5} textAnchor="middle" fontSize={8.5} fontWeight={700} fill={color} letterSpacing="0.05em">${cost.toFixed(2)}/月</text></>
-                        : <><rect x={(W-44)/2} y={82} width={44} height={14} rx={7} fill="rgba(16,185,129,0.12)" stroke="rgba(16,185,129,0.5)" strokeWidth="0.75"/>
-                            <text x={W/2} y={92.5} textAnchor="middle" fontSize={8} fontWeight={800} fill="#10B981" letterSpacing="0.1em">FREE</text></>
-                      }
-                      {/* 下ポート：選択中のみ表示 */}
+                    <g key={node.id}>
+                      {/* ノード本体（ドラッグ対象） */}
+                      <g transform={`translate(${node.x},${node.y})`}
+                        style={{cursor:dragging===node.id?"grabbing":"grab"}}
+                        onMouseDown={e=>handleNodeMouseDown(e,node.id)}
+                        onDoubleClick={e=>{
+                          e.stopPropagation();
+                          const r2=canvasRef.current.getBoundingClientRect();
+                          setEditingNodeName({
+                            id: node.id,
+                            screenX: node.x*zoom+pan.x+r2.left + W/2*zoom,
+                            screenY: node.y*zoom+pan.y+r2.top + H*zoom + 8*zoom,
+                          });
+                        }}>
+                        <defs>
+                          <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={`rgba(${rgb},0.10)`}/>
+                            <stop offset="100%" stopColor="rgba(0,0,0,0)"/>
+                          </linearGradient>
+                          <clipPath id={`ct${gid}`}><rect x={0} y={0} width={W} height={16} rx={rx}/></clipPath>
+                        </defs>
+                        {isSel&&<><rect x={-10} y={-10} width={W+20} height={H+20} rx={rx+6} fill="none" stroke={`rgba(${rgb},0.6)`} strokeWidth="1.5" strokeDasharray="8 5" className="aspinr"/><rect x={-18} y={-18} width={W+36} height={H+36} rx={rx+10} fill={`rgba(${rgb},0.06)`}/></>}
+                        {isConn&&<><rect x={-8} y={-8} width={W+16} height={H+16} rx={rx+4} fill="none" stroke={`rgba(${rgb},0.9)`} strokeWidth="2" strokeDasharray="6 4" className="adash"/><rect x={-14} y={-14} width={W+28} height={H+28} rx={rx+8} fill={`rgba(${rgb},0.08)`} className="apulse"/></>}
+                        <ellipse cx={W/2} cy={H+14} rx={W*0.4} ry={10} fill={`rgba(${rgb},0.15)`} style={{filter:"blur(6px)"}}/>
+                        <rect width={W} height={H} rx={rx} fill="url(#cardGrad)" filter="url(#cardShadow)"/>
+                        <rect width={W} height={H} rx={rx} fill={`url(#${gid})`}/>
+                        <rect x={2} y={2} width={W-4} height={H/2-4} rx={rx-2} fill="rgba(255,255,255,0.4)"/>
+                        <rect width={W} height={H} rx={rx} fill="none" stroke={isSel?"#FF9900":isConn?color:`rgba(${rgb},0.35)`} strokeWidth={isSel||isConn?1.8:1}/>
+                        <rect x={0} y={0} width={W} height={5} fill={color} opacity="0.95" clipPath={`url(#ct${gid})`}/>
+                        <rect x={14} y={0} width={W*0.4} height={5} fill="rgba(255,255,255,0.35)" clipPath={`url(#ct${gid})`}/>
+                        <rect x={W/2-iconOff} y={iconY} width={iconS} height={iconS} rx={Math.round(14*scale)} fill={`rgba(${rgb},0.12)`} stroke={`rgba(${rgb},0.32)`} strokeWidth="1"/>
+                        <rect x={W/2-iconOff} y={iconY} width={iconS} height={iconS} rx={Math.round(14*scale)} fill="rgba(255,255,255,0.3)"/>
+                        {/* アイコン：カスタム絵文字 > SVGアイコン > デフォルト絵文字 */}
+                        {displayIcon
+                          ? <text x={W/2} y={iconY+iconS*0.72} textAnchor="middle" fontSize={Math.round(28*scale)} fill={color}>{displayIcon}</text>
+                          : iconSrc
+                            ? <image href={iconSrc} x={W/2-iconOff+2} y={iconY+2} width={iconS-4} height={iconS-4}/>
+                            : <text x={W/2} y={iconY+iconS*0.72} textAnchor="middle" fontSize={Math.round(28*scale)} fill={color}>{node.icon}</text>
+                        }
+                        <text x={W/2} y={nameY} textAnchor="middle" fontSize={nameFs} fontWeight={700} fill="#1F2937" letterSpacing="0.025em">
+                          {displayName.length>16?displayName.slice(0,15)+"…":displayName}
+                        </text>
+                        {isCustom
+                          ? <><rect x={(W-52)/2} y={badgeY} width={52} height={badgeH} rx={badgeH/2} fill="rgba(100,116,139,0.12)" stroke="rgba(100,116,139,0.4)" strokeWidth="0.75"/>
+                              <text x={W/2} y={badgeY+badgeH*0.75} textAnchor="middle" fontSize={Math.max(7,Math.round(7.5*scale))} fontWeight={700} fill="#64748B" letterSpacing="0.05em">料金対象外</text></>
+                          : cost>0
+                            ? <><rect x={(W-badgeW)/2} y={badgeY} width={badgeW} height={badgeH} rx={badgeH/2} fill={`rgba(${rgb},0.16)`} stroke={`rgba(${rgb},0.5)`} strokeWidth="0.75"/>
+                                <text x={W/2} y={badgeY+badgeH*0.75} textAnchor="middle" fontSize={costFs} fontWeight={700} fill={color} letterSpacing="0.05em">${cost.toFixed(2)}/月</text></>
+                            : <><rect x={(W-44)/2} y={badgeY} width={44} height={badgeH} rx={badgeH/2} fill="rgba(16,185,129,0.12)" stroke="rgba(16,185,129,0.5)" strokeWidth="0.75"/>
+                                <text x={W/2} y={badgeY+badgeH*0.75} textAnchor="middle" fontSize={Math.max(7,Math.round(8*scale))} fontWeight={800} fill="#10B981" letterSpacing="0.1em">FREE</text></>
+                        }
+                        {/* 下ポート：選択中のみ */}
+                        {isSel && (
+                          <g onClick={e=>handleConnect(e,node.id)} style={{cursor:"pointer"}}>
+                            <circle cx={W/2} cy={H+12} r={9} fill="#FFFFFF" stroke={color} strokeWidth="1.5" style={{filter:"drop-shadow(0 1px 3px rgba(0,0,0,0.15))"}}/> 
+                            <text x={W/2} y={H+16} textAnchor="middle" fontSize={12} fill={color} fontWeight="bold" style={{userSelect:"none"}}>+</text>
+                          </g>
+                        )}
+                        {/* 接続モード中ハイライト */}
+                        {connecting && connecting!==node.id && (
+                          <rect width={W} height={H} rx={rx} fill={`rgba(${rgb},0.1)`}
+                            stroke={color} strokeWidth={2} strokeDasharray="4 2"
+                            style={{cursor:"crosshair"}}
+                            onMouseDown={e=>{e.stopPropagation(); handleConnect(e,node.id);}}/>
+                        )}
+                        {/* 削除ボタン */}
+                        {isSel&&(
+                          <g onClick={e=>{e.stopPropagation();del();}} style={{cursor:"pointer"}}>
+                            <circle cx={W-2} cy={2} r={9} fill="#FFFFFF" stroke="#EF4444" strokeWidth={1.2} style={{filter:"drop-shadow(0 1px 2px rgba(0,0,0,0.12))"}}/> 
+                            <text x={W-2} y={5.5} textAnchor="middle" fontSize={10} fill="#EF4444" fontWeight="bold" style={{userSelect:"none"}}>✕</text>
+                          </g>
+                        )}
+                      </g>
+
+                      {/* リサイズハンドル（右下・選択時のみ・ノード外に配置） */}
                       {isSel && (
-                        <g onClick={e=>handleConnect(e,node.id)} style={{cursor:"pointer"}}>
-                          <circle cx={W/2} cy={H+12} r={9} fill="#FFFFFF" stroke={color} strokeWidth="1.5" style={{filter:"drop-shadow(0 1px 3px rgba(0,0,0,0.15))"}}/> 
-                          <text x={W/2} y={H+16} textAnchor="middle" fontSize={12} fill={color} fontWeight="bold" style={{userSelect:"none"}}>+</text>
-                        </g>
-                      )}
-                      {/* 接続モード中：ノード全体クリックで接続完了 */}
-                      {connecting && connecting!==node.id && (
-                        <rect width={W} height={H} rx={16} fill={`rgba(${rgb},0.1)`}
-                          stroke={color} strokeWidth={2} strokeDasharray="4 2"
-                          style={{cursor:"crosshair"}}
-                          onMouseDown={e=>{e.stopPropagation(); handleConnect(e,node.id);}}/>
-                      )}
-                      {isSel&&(
-                        <g onClick={e=>{e.stopPropagation();del();}} style={{cursor:"pointer"}}>
-                          <circle cx={W-2} cy={2} r={9} fill="#FFFFFF" stroke="#EF4444" strokeWidth={1.2} style={{filter:"drop-shadow(0 1px 2px rgba(0,0,0,0.12))"}}/> 
-                          <text x={W-2} y={5.5} textAnchor="middle" fontSize={10} fill="#EF4444" fontWeight="bold" style={{userSelect:"none"}}>✕</text>
+                        <g style={{cursor:"se-resize"}}
+                          onMouseDown={e=>{
+                            e.stopPropagation();
+                            const r2=canvasRef.current.getBoundingClientRect();
+                            const mx=(e.clientX-r2.left-pan.x)/zoom;
+                            const my=(e.clientY-r2.top-pan.y)/zoom;
+                            setResizing({id:node.id,mode:"br",startW:W,startH:H,startMx:mx,startMy:my,isNode:true});
+                          }}>
+                          <rect x={node.x+W-5} y={node.y+H-5} width={12} height={12} rx={3}
+                            fill={color} opacity={0.85}
+                            style={{filter:`drop-shadow(0 1px 3px rgba(${rgb},0.4))`}}/>
+                          <text x={node.x+W+1} y={node.y+H+3} textAnchor="middle"
+                            fontSize={8} fill={color} opacity={0.8} style={{userSelect:"none"}}>⤡</text>
                         </g>
                       )}
                     </g>
@@ -3292,6 +3565,47 @@ export default function App() {
                 </g>
               )}
             </svg>
+
+            {/* ── Node name edit overlay ── */}
+            {editingNodeName && (() => {
+              const node = nodes.find(n=>n.id===editingNodeName.id);
+              if (!node) return null;
+              const r2 = canvasRef.current?.getBoundingClientRect();
+              if (!r2) return null;
+              return (
+                <div style={{
+                  position:"absolute",
+                  left: editingNodeName.screenX - r2.left,
+                  top:  editingNodeName.screenY - r2.top,
+                  transform:"translateX(-50%)",
+                  zIndex:999,
+                  background:"white",
+                  border:"2px solid #3B82F6",
+                  borderRadius:8,
+                  boxShadow:"0 8px 24px rgba(0,0,0,0.15)",
+                  padding:"8px 10px",
+                  minWidth:140,
+                  display:"flex",
+                  flexDirection:"column",
+                  gap:6,
+                }}>
+                  <div style={{fontSize:10,color:"#6B7280",fontWeight:600}}>アイコン名を編集</div>
+                  <input autoFocus
+                    type="text"
+                    value={node.name}
+                    onChange={e=>setNodes(prev=>prev.map(n=>n.id===editingNodeName.id?{...n,name:e.target.value}:n))}
+                    onKeyDown={e=>{
+                      if(e.key==="Enter"||e.key==="Escape") setEditingNodeName(null);
+                      e.stopPropagation();
+                    }}
+                    style={{
+                      fontSize:13, padding:"5px 8px", border:"1px solid #D1D5DB",
+                      borderRadius:6, outline:"none", width:"100%", boxSizing:"border-box",
+                    }}/>
+                  <div style={{fontSize:10,color:"#9CA3AF",textAlign:"center"}}>Enter / Esc で確定</div>
+                </div>
+              );
+            })()}
 
             {/* ── Text edit overlay ── */}
             {editingText && (() => {
@@ -3443,6 +3757,39 @@ export default function App() {
                   {selectedNode.nodeType==="group" ? (
                     /* グループノードの設定パネル */
                     <>
+                      {/* Subnetタイプ切替（Subnetのみ表示） */}
+                      {selectedNode.serviceId==="subnet" && (
+                        <div style={{marginBottom:12}}>
+                          <label style={{fontSize:11,color:"#6B7280",display:"block",marginBottom:6}}>サブネットタイプ</label>
+                          <div style={{display:"flex",flexDirection:"column",gap:5}}>
+                            {Object.entries(SUBNET_STYLES).map(([type,s])=>{
+                              const isActive = (selectedNode.subnetType||"public")===type;
+                              return (
+                                <button key={type}
+                                  onClick={()=>{
+                                    setNodes(prev=>prev.map(n=>n.id===selectedNode.id?{
+                                      ...n, subnetType:type,
+                                      groupStyle:{...n.groupStyle,color:s.color,fillOpacity:s.fillOpacity,dash:s.dash},
+                                      groupLabel:s.label,
+                                    }:n));
+                                  }}
+                                  style={{
+                                    display:"flex",alignItems:"center",gap:8,padding:"7px 10px",
+                                    border:`1.5px solid ${isActive?s.color:"#E5E7EB"}`,
+                                    borderRadius:8,background:isActive?`${s.color}12`:"#FFFFFF",
+                                    cursor:"pointer",textAlign:"left",
+                                  }}>
+                                  <div style={{width:12,height:12,borderRadius:3,background:s.color,flexShrink:0}}/>
+                                  <span style={{fontSize:12,fontWeight:isActive?700:400,color:isActive?s.color:"#374151"}}>
+                                    {type==="public"?"🌐 Public":type==="private"?"🔒 Private":"🗄️ Isolated"}
+                                  </span>
+                                  {isActive && <span style={{marginLeft:"auto",fontSize:10,color:s.color,fontWeight:600}}>✓ 選択中</span>}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                       <div style={{fontSize:11,color:"#6B7280",marginBottom:12,lineHeight:1.6,padding:"6px 8px",background:"#F3F4F6",borderRadius:6}}>
                         ℹ️ {selectedNode.pricing.note||"グループノード（他のサービスを内包できます）"}
                       </div>
@@ -3488,8 +3835,49 @@ export default function App() {
                   ) : (
                     /* 通常サービスノードの設定パネル */
                     <>
-                      <div style={{fontSize:22,fontWeight:700,color:"#FF9900",marginBottom:2}}>${cost.toFixed(2)}<span style={{fontSize:12,fontWeight:400,color:"#6B7280"}}>/月</span></div>
-                      <div style={{fontSize:11,color:"#6B7280",marginBottom:12}}>≈ ¥{Math.round(cost*usdJpy).toLocaleString()}</div>
+                      {/* カスタムノードの場合：名前・絵文字を編集可能 */}
+                      {selectedNode.serviceId.startsWith("custom_") && (
+                        <div style={{marginBottom:12,padding:"10px 10px 4px",background:"#EFF6FF",borderRadius:8,border:"1px solid #BFDBFE"}}>
+                          <div style={{fontSize:11,color:"#1D4ED8",fontWeight:600,marginBottom:8}}>✏️ カスタムノード編集</div>
+                          <div style={{marginBottom:8}}>
+                            <label style={{fontSize:11,color:"#6B7280",display:"block",marginBottom:3}}>表示名</label>
+                            <input type="text"
+                              value={selectedNode.customName ?? selectedNode.name}
+                              onChange={e=>updNode("customName", e.target.value)}
+                              placeholder="例: 社内システム"
+                              style={{width:"100%",fontSize:12,padding:"5px 8px",borderRadius:6,border:"0.5px solid #D1D5DB",background:"#FFFFFF",color:"#111827",boxSizing:"border-box"}}/>
+                          </div>
+                          <div style={{marginBottom:4}}>
+                            <label style={{fontSize:11,color:"#6B7280",display:"block",marginBottom:3}}>絵文字アイコン</label>
+                            <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                              <input type="text"
+                                value={selectedNode.customIcon ?? selectedNode.icon}
+                                onChange={e=>updNode("customIcon", e.target.value)}
+                                maxLength={4}
+                                style={{width:60,fontSize:20,padding:"3px 6px",borderRadius:6,border:"0.5px solid #D1D5DB",background:"#FFFFFF",color:"#111827",textAlign:"center"}}/>
+                              <div style={{fontSize:10,color:"#9CA3AF",lineHeight:1.5}}>絵文字を入力<br/>（1〜2文字）</div>
+                            </div>
+                          </div>
+                          <div style={{display:"flex",flexWrap:"wrap",gap:4,marginTop:8,marginBottom:4}}>
+                            {["🖥️","🗄️","💻","📱","🔌","👤","🌐","☁️","📦","🏢","⚙️","🛡️","📡","🔗","📊","🏭","🔑","📁"].map(e=>(
+                              <button key={e} onClick={()=>updNode("customIcon",e)}
+                                style={{background:(selectedNode.customIcon??selectedNode.icon)===e?"#DBEAFE":"#F9FAFB",border:`1px solid ${(selectedNode.customIcon??selectedNode.icon)===e?"#3B82F6":"#E5E7EB"}`,borderRadius:4,padding:"3px 5px",fontSize:16,cursor:"pointer",lineHeight:1}}>
+                                {e}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div style={{fontSize:22,fontWeight:700,color:"#9CA3AF",marginBottom:2}}>
+                        {selectedNode.pricing.note === "料金計算対象外" ? (
+                          <span style={{fontSize:13,fontWeight:600,color:"#6B7280"}}>料金計算対象外</span>
+                        ) : (
+                          <>${cost.toFixed(2)}<span style={{fontSize:12,fontWeight:400,color:"#6B7280"}}>/月</span></>
+                        )}
+                      </div>
+                      {selectedNode.pricing.note !== "料金計算対象外" && (
+                        <div style={{fontSize:11,color:"#6B7280",marginBottom:12}}>≈ ¥{Math.round(cost*usdJpy).toLocaleString()}</div>
+                      )}
                       {fields.length>0
                         ? fields.map(fld=>renderField(selectedNode,fld))
                         : <div style={{fontSize:12,color:"#6B7280",padding:"8px 0"}}>{selectedNode.pricing.note||"設定項目なし"}</div>
