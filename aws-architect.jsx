@@ -37,6 +37,43 @@ const AWS_ICON_SVG = {
     <circle cx="23" cy="28" r="3" fill="${c}"/>
     <circle cx="23" cy="44" r="3" fill="${c}"/>
   </svg>`,
+  ecs_cluster: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="10" y="14" width="60" height="52" rx="6" fill="none" stroke="white" stroke-width="2.5" stroke-dasharray="6 3"/>
+    <rect x="18" y="24" width="20" height="16" rx="3" fill="white" opacity="0.7"/>
+    <rect x="42" y="24" width="20" height="16" rx="3" fill="white" opacity="0.7"/>
+    <rect x="18" y="44" width="20" height="14" rx="3" fill="white" opacity="0.5"/>
+    <rect x="42" y="44" width="20" height="14" rx="3" fill="white" opacity="0.5"/>
+    <text x="40" y="12" text-anchor="middle" fill="white" font-size="7" font-weight="bold" font-family="Arial" opacity="0.9">CLUSTER</text>
+  </svg>`,
+  ecs_service: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="12" y="16" width="56" height="48" rx="6" fill="none" stroke="white" stroke-width="2" stroke-dasharray="5 3"/>
+    <circle cx="28" cy="34" r="9" fill="white" opacity="0.8"/>
+    <circle cx="52" cy="34" r="9" fill="white" opacity="0.8"/>
+    <circle cx="40" cy="52" r="9" fill="white" opacity="0.6"/>
+    <line x1="28" y1="34" x2="52" y2="34" stroke="white" stroke-width="1.5" opacity="0.5"/>
+    <line x1="40" y1="43" x2="40" y2="52" stroke="white" stroke-width="1.5" opacity="0.5"/>
+    <text x="40" y="12" text-anchor="middle" fill="white" font-size="7" font-weight="bold" font-family="Arial" opacity="0.9">SERVICE</text>
+  </svg>`,
+  ecs_task_fargate: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="16" y="16" width="48" height="48" rx="8" fill="white" opacity="0.15"/>
+    <rect x="16" y="16" width="48" height="48" rx="8" fill="none" stroke="white" stroke-width="2.5"/>
+    <text x="40" y="46" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="Arial">F</text>
+    <text x="40" y="58" text-anchor="middle" fill="white" font-size="8" font-family="Arial" opacity="0.85">Fargate</text>
+    <circle cx="58" cy="22" r="7" fill="white" opacity="0.9"/>
+    <text x="58" y="25.5" text-anchor="middle" fill="${c}" font-size="8" font-weight="bold" font-family="Arial">T</text>
+  </svg>`,
+  ecs_task_ec2: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="80" height="80" rx="12" fill="${c}"/>
+    <rect x="16" y="16" width="48" height="48" rx="8" fill="white" opacity="0.15"/>
+    <rect x="16" y="16" width="48" height="48" rx="8" fill="none" stroke="white" stroke-width="2.5"/>
+    <text x="40" y="44" text-anchor="middle" fill="white" font-size="14" font-weight="bold" font-family="Arial">EC2</text>
+    <text x="40" y="56" text-anchor="middle" fill="white" font-size="8" font-family="Arial" opacity="0.85">Launch Type</text>
+    <circle cx="58" cy="22" r="7" fill="white" opacity="0.9"/>
+    <text x="58" y="25.5" text-anchor="middle" fill="${c}" font-size="8" font-weight="bold" font-family="Arial">T</text>
+  </svg>`,
   elasticbeanstalk: (c) => `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
     <rect width="80" height="80" rx="12" fill="${c}"/>
     <ellipse cx="40" cy="32" rx="20" ry="10" fill="none" stroke="white" stroke-width="3"/>
@@ -664,6 +701,32 @@ const AWS_SERVICES = {
         pricing: { unit: "リクエスト", base: 0.0000002, freeLimit: 1000000 } },
       { id: "ecs", name: "ECS / Fargate", icon: "📦", desc: "コンテナ実行",
         pricing: { unit: "vCPU-h", base: 0.05056, memGB: 0.00553 } },
+      { id: "ecs_cluster", name: "ECS Cluster", icon: "🏗️", desc: "ECSクラスター（コントロールプレーン）",
+        nodeType: "group",
+        groupStyle: { color: "#FF6B35", fillOpacity: 0.07, dash: "8 4" },
+        pricing: { unit: "無料", base: 0, note: "ECSクラスター自体は無料。タスクの実行リソース（FargateまたはEC2）で課金" } },
+      { id: "ecs_service", name: "ECS Service", icon: "⚙️", desc: "ECSサービス（タスクの管理・オートスケーリング）",
+        nodeType: "group",
+        groupStyle: { color: "#E85D04", fillOpacity: 0.06, dash: "6 3" },
+        pricing: { unit: "無料", base: 0, note: "ECSサービス自体は無料。タスクの実行リソースで課金" } },
+      { id: "ecs_task_fargate", name: "Fargate タスク", icon: "λ", desc: "ECS Fargate タスク（サーバーレスコンテナ）",
+        pricing: { unit: "vCPU-h + GB-h", base: 0.04048, memGB: 0.004445, options: [
+          { label: "0.25 vCPU / 0.5GB  ≈ $5.3/月", value: 0.04048 * 0.25 + 0.004445 * 0.5 },
+          { label: "0.5 vCPU / 1GB     ≈ $10.6/月", value: 0.04048 * 0.5 + 0.004445 * 1 },
+          { label: "1 vCPU / 2GB       ≈ $21.3/月", value: 0.04048 * 1 + 0.004445 * 2 },
+          { label: "2 vCPU / 4GB       ≈ $42.5/月", value: 0.04048 * 2 + 0.004445 * 4 },
+          { label: "4 vCPU / 8GB       ≈ $85.1/月", value: 0.04048 * 4 + 0.004445 * 8 },
+          { label: "8 vCPU / 16GB      ≈ $170.1/月", value: 0.04048 * 8 + 0.004445 * 16 },
+        ], hoursPerMonth: 730, note: "$0.04048/vCPU時間 + $0.004445/GB時間（東京リージョン Linux/x86 2026年）" } },
+      { id: "ecs_task_ec2", name: "EC2 タスク", icon: "🖥️", desc: "ECS EC2起動タイプ タスク（EC2インスタンス上のコンテナ）",
+        pricing: { unit: "EC2料金のみ", base: 0, options: [
+          { label: "t3.micro  $0.0136/h", value: 0.0136 },
+          { label: "t3.small  $0.0272/h", value: 0.0272 },
+          { label: "t3.medium $0.0544/h", value: 0.0544 },
+          { label: "t3.large  $0.1088/h", value: 0.1088 },
+          { label: "m6i.large $0.124/h",  value: 0.124  },
+          { label: "c6i.large $0.099/h",  value: 0.099  },
+        ], hoursPerMonth: 730, note: "ECS EC2起動タイプ。タスク自体の料金なし。EC2インスタンスの費用のみ課金" } },
       { id: "eks", name: "EKS", icon: "☸️", desc: "Kubernetesクラスター",
         pricing: { unit: "クラスター/h", base: 0.10, hoursPerMonth: 730, note: "$0.10/h + ノードEC2料金" } },
       { id: "batch", name: "AWS Batch", icon: "⚙️", desc: "バッチ処理",
@@ -1140,6 +1203,16 @@ const SERVICE_FIELDS = {
                 { f:"memGB", label:"メモリ/タスク（GB）", type:"select", options:[0.5,1,2,4,8,16,30].map(v=>({label:`${v} GB`,value:v})) },
                 { f:"hoursPerDay", label:"稼働時間/日", type:"number", min:1, max:24 },
                 { f:"daysPerMonth", label:"稼働日数/月", type:"number", min:1, max:31 }],
+  ecs_cluster: [],  // グループノード・料金なし
+  ecs_service: [],  // グループノード・料金なし
+  ecs_task_fargate:[{ f:"instanceOption", label:"vCPU/メモリ構成", type:"select" },
+                    { f:"qty", label:"タスク数", type:"number", min:1, step:1 },
+                    { f:"hoursPerDay", label:"稼働時間/日", type:"number", min:1, max:24 },
+                    { f:"daysPerMonth", label:"稼働日数/月", type:"number", min:1, max:31 }],
+  ecs_task_ec2:[{ f:"instanceOption", label:"EC2インスタンスタイプ", type:"select" },
+                { f:"qty", label:"インスタンス数", type:"number", min:1, step:1 },
+                { f:"hoursPerDay", label:"稼働時間/日", type:"number", min:1, max:24 },
+                { f:"daysPerMonth", label:"稼働日数/月", type:"number", min:1, max:31 }],
   eks:         [{ f:"qty", label:"クラスター数", type:"number", min:1 },
                 { f:"nodeQty", label:"ノード数（EC2換算）", type:"number", min:0 }],
   lightsail:   [{ f:"qty", label:"インスタンス数", type:"number", min:1 },
@@ -1422,6 +1495,15 @@ function calcDetailedCost(node, rf) {
     const vcpu = node.vcpu || 0.25;
     const memGB = node.memGB || 0.5;
     cost = ((0.05056 * vcpu + 0.00553 * memGB) * hrs * (node.qty||1)) * rf;
+  } else if (sid === "ecs_cluster" || sid === "ecs_service") {
+    cost = 0; // クラスター・サービス自体は無料
+  } else if (sid === "ecs_task_fargate") {
+    // $0.04048/vCPU時間 + $0.004445/GB時間（東京 Linux/x86）
+    const rate = node.instanceOption || (0.04048 * 0.25 + 0.004445 * 0.5);
+    cost = rate * hrs * (node.qty||1) * rf;
+  } else if (sid === "ecs_task_ec2") {
+    // タスク自体は無料、EC2インスタンス料金のみ
+    cost = (node.instanceOption||0.0136) * hrs * (node.qty||1) * rf;
   } else if (sid === "eks") {
     cost = (0.10 * 730 * (node.qty||1)) * rf;
   } else if (sid === "lightsail") {
