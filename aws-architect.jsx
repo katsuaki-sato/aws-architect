@@ -2591,6 +2591,317 @@ function parseDrawioSheets(xmlStr) {
   });
 }
 
+// ── Best Practice Data ─────────────────────────────────────────────────────
+const BEST_PRACTICES = {
+  ec2: [
+    { id:"ec2-1", pillar:"security",     title:"IAMロールを使用する",             desc:"EC2インスタンスにIAMロールをアタッチし、アクセスキーをコード内に埋め込まない。最小権限の原則を適用する。" },
+    { id:"ec2-2", pillar:"security",     title:"セキュリティグループを最小化する",   desc:"必要なポートのみ開放し、ソースIPを可能な限り絞り込む。SSHは踏み台サーバーまたはSSM Session Managerを使用する。" },
+    { id:"ec2-3", pillar:"reliability",  title:"マルチAZで冗長化する",             desc:"複数のアベイラビリティゾーンにインスタンスを配置し、単一障害点をなくす。" },
+    { id:"ec2-4", pillar:"reliability",  title:"Auto Scalingを設定する",           desc:"需要に応じてインスタンス数を自動調整し、可用性を確保する。ヘルスチェックを必ず設定する。" },
+    { id:"ec2-5", pillar:"cost",         title:"リザーブドインスタンス/Savings Plansを検討する", desc:"1〜3年のコミットメントで最大72%削減。予測可能なワークロードには必ず検討する。" },
+    { id:"ec2-6", pillar:"cost",         title:"スポットインスタンスを活用する",     desc:"中断可能なバッチ処理や開発環境にはスポットインスタンスを使用し最大90%削減。" },
+    { id:"ec2-7", pillar:"performance",  title:"適切なインスタンスタイプを選択する", desc:"CPU・メモリ・ネットワーク・GPU要件に合ったインスタンスファミリーを選択。過剰スペックを避ける。" },
+    { id:"ec2-8", pillar:"operations",   title:"CloudWatchでモニタリングする",       desc:"CPU使用率・メモリ・ディスクI/OのカスタムメトリクスをCloudWatchに送信し、アラームを設定する。" },
+  ],
+  rds: [
+    { id:"rds-1", pillar:"security",     title:"プライベートサブネットに配置する",   desc:"RDSはパブリックアクセスを無効にし、プライベートサブネット（Isolated）に配置する。" },
+    { id:"rds-2", pillar:"security",     title:"保管中・転送中の暗号化を有効化する", desc:"ストレージ暗号化を有効化し、SSL/TLS接続を強制する。KMSカスタマーキーの使用を検討する。" },
+    { id:"rds-3", pillar:"reliability",  title:"Multi-AZを有効化する",              desc:"本番環境ではMulti-AZを必ず有効化する。フェイルオーバー時間は通常60〜120秒。" },
+    { id:"rds-4", pillar:"reliability",  title:"自動バックアップを設定する",         desc:"自動バックアップ保持期間を7日以上に設定。重要データは手動スナップショットも定期取得する。" },
+    { id:"rds-5", pillar:"performance",  title:"リードレプリカで読み込みをスケール",  desc:"読み取り負荷の高いワークロードはリードレプリカに分散。最大5台まで作成可能。" },
+    { id:"rds-6", pillar:"cost",         title:"不要な時間帯はインスタンスを停止する", desc:"開発・テスト環境は業務時間外に停止スケジュールを設定してコスト削減。" },
+    { id:"rds-7", pillar:"operations",   title:"Performance Insightsを有効化する",   desc:"データベースの負荷とボトルネックをリアルタイムで可視化し、クエリのチューニングに活用する。" },
+  ],
+  aurora: [
+    { id:"aurora-1", pillar:"reliability",  title:"Aurora Global Databaseを検討する",   desc:"リージョン間でのレプリケーションにより、災害対策と低レイテンシ読み取りを両立する。" },
+    { id:"aurora-2", pillar:"performance",  title:"Aurora Serverlessを活用する",        desc:"断続的なワークロードや予測不能なトラフィックにはServerless v2を使用し、コストと性能を最適化する。" },
+    { id:"aurora-3", pillar:"reliability",  title:"フェイルオーバー優先度を設定する",   desc:"リードレプリカにフェイルオーバー優先度を設定し、プライマリ障害時の昇格順を制御する。" },
+    { id:"aurora-4", pillar:"security",     title:"IAM認証を使用する",                  desc:"パスワードの代わりにIAMデータベース認証を使用し、認証情報の管理を簡素化する。" },
+  ],
+  lambda: [
+    { id:"lambda-1", pillar:"performance",  title:"コールドスタートを最小化する",      desc:"Provisioned Concurrencyを設定してコールドスタートを排除。ランタイムの選択もコールドスタート時間に影響する。" },
+    { id:"lambda-2", pillar:"security",     title:"最小権限のIAM実行ロールを設定する", desc:"Lambda関数に必要最低限の権限のみ付与する。リソースベースポリシーで呼び出し元を制限する。" },
+    { id:"lambda-3", pillar:"reliability",  title:"デッドレターキューを設定する",      desc:"非同期呼び出しの失敗イベントをSQS/SNSに送信し、再処理や調査ができるようにする。" },
+    { id:"lambda-4", pillar:"cost",         title:"メモリサイズを最適化する",          desc:"メモリを増やすとCPUも増加し実行時間が短縮される。AWS Lambda Power Tuningで最適値を測定する。" },
+    { id:"lambda-5", pillar:"performance",  title:"環境変数で設定を外部化する",        desc:"設定値・エンドポイント・機密情報は環境変数またはSecrets Managerで管理し、コードに埋め込まない。" },
+    { id:"lambda-6", pillar:"operations",   title:"X-Rayで分散トレーシングを有効化する", desc:"Lambda・API Gateway・DynamoDBなど複数サービスにまたがるトレースを可視化する。" },
+  ],
+  s3: [
+    { id:"s3-1", pillar:"security",     title:"バケットポリシーでアクセスを制限する", desc:"パブリックアクセスブロックを有効化。必要な場合のみ特定のリソースやアカウントにアクセスを許可する。" },
+    { id:"s3-2", pillar:"security",     title:"サーバーサイド暗号化を有効化する",    desc:"SSE-S3またはSSE-KMSを使用してデータを暗号化する。転送中はHTTPS（TLS）を強制する。" },
+    { id:"s3-3", pillar:"reliability",  title:"バージョニングを有効化する",          desc:"重要なデータのバージョニングを有効化し、誤削除や上書きから保護する。" },
+    { id:"s3-4", pillar:"cost",         title:"ライフサイクルポリシーを設定する",    desc:"アクセス頻度に応じてStandard→IA→Glacierへ自動移行し、コストを最適化する。" },
+    { id:"s3-5", pillar:"performance",  title:"CloudFrontと組み合わせて配信する",   desc:"静的コンテンツはCloudFrontを前段に置き、レイテンシ短縮とS3コスト削減を両立する。" },
+    { id:"s3-6", pillar:"operations",   title:"S3 Inventoryでオブジェクト管理する", desc:"大量のオブジェクトを管理する場合はS3 Inventoryでリストを定期生成し、監査・分析に活用する。" },
+  ],
+  dynamodb: [
+    { id:"dynamodb-1", pillar:"performance",  title:"パーティションキーを適切に設計する", desc:"ホットパーティションを避けるため、カーディナリティの高い属性をパーティションキーに選択する。" },
+    { id:"dynamodb-2", pillar:"performance",  title:"GSI/LSIを適切に活用する",           desc:"クエリパターンに応じてグローバルセカンダリインデックスを設計する。過剰なインデックスはコスト増の原因になる。" },
+    { id:"dynamodb-3", pillar:"reliability",  title:"ポイントインタイムリカバリを有効化する", desc:"PTIRを有効化し、過去35日以内の任意の時点にテーブルを復元できるようにする。" },
+    { id:"dynamodb-4", pillar:"cost",         title:"オンデマンドvs.プロビジョンドを選択する", desc:"予測不能なトラフィックにはオンデマンド、安定したトラフィックにはプロビジョンド＋Auto Scalingが経済的。" },
+    { id:"dynamodb-5", pillar:"security",     title:"VPCエンドポイントを使用する",       desc:"DynamoDB用のVPCエンドポイント（Gateway型・無料）を使用し、通信をAWSネットワーク内に閉じる。" },
+    { id:"dynamodb-6", pillar:"performance",  title:"DynamoDB Accelerator(DAX)を検討する", desc:"マイクロ秒レベルのレイテンシが必要な場合はDAXキャッシュを使用する。" },
+  ],
+  alb: [
+    { id:"alb-1", pillar:"security",     title:"WAFと組み合わせる",                desc:"ALBの前にWAFを設置してSQLインジェクション・XSSなどの攻撃を防御する。" },
+    { id:"alb-2", pillar:"security",     title:"HTTPS（443）のみを受け付ける",      desc:"HTTP（80）をHTTPS（443）にリダイレクトし、常にTLS通信を強制する。証明書はACMを使用する。" },
+    { id:"alb-3", pillar:"reliability",  title:"複数AZに分散させる",               desc:"ALBは少なくとも2つのAZにサブネットを指定し、ゾーン障害に耐えられるようにする。" },
+    { id:"alb-4", pillar:"operations",   title:"アクセスログを有効化する",          desc:"ALBのアクセスログをS3に保存し、トラブルシューティングや分析に活用する。" },
+    { id:"alb-5", pillar:"performance",  title:"スティッキーセッションを慎重に使う", desc:"スティッキーセッションは負荷分散の偏りを生む。可能な限りステートレスなアーキテクチャを設計する。" },
+  ],
+  cloudfront: [
+    { id:"cloudfront-1", pillar:"security",     title:"OAC（オリジンアクセスコントロール）を使用する", desc:"CloudFrontからS3への直接アクセスを制限し、CloudFront経由のみに限定する。" },
+    { id:"cloudfront-2", pillar:"security",     title:"HTTPS（TLS1.2以上）を強制する",     desc:"ビューワーとオリジン両方でHTTPSを必須にし、最新のTLSポリシーを使用する。" },
+    { id:"cloudfront-3", pillar:"performance",  title:"キャッシュ動作を最適化する",        desc:"静的コンテンツのTTLを長く設定し、動的コンテンツは適切にキャッシュ無効化する。" },
+    { id:"cloudfront-4", pillar:"cost",         title:"Price Classを最適化する",           desc:"必要なリージョンのみに配信を制限してコストを削減する。アジアのみなら100で十分な場合が多い。" },
+  ],
+  ecs: [
+    { id:"ecs-1", pillar:"security",     title:"タスクロールで最小権限を付与する",  desc:"ECSタスクにはタスクロールで必要最小限の権限のみ付与。EC2インスタンスロールへの依存を避ける。" },
+    { id:"ecs-2", pillar:"reliability",  title:"ヘルスチェックを適切に設定する",   desc:"タスク定義とロードバランサーの両方でヘルスチェックを設定し、異常タスクを自動置換する。" },
+    { id:"ecs-3", pillar:"operations",   title:"CloudWatch Container Insightsを有効化する", desc:"コンテナ・タスク・サービスレベルのメトリクスを収集し、パフォーマンスを可視化する。" },
+    { id:"ecs-4", pillar:"reliability",  title:"デプロイメント設定を調整する",     desc:"最小ヘルスパーセントと最大パーセントを設定し、ローリングアップデート中の可用性を確保する。" },
+  ],
+  vpc: [
+    { id:"vpc-1", pillar:"security",     title:"サブネットを用途で分離する",        desc:"Public/Private/Isolatedの3層構成を基本とし、インターネット接続が不要なリソースはPrivate/Isolatedに配置する。" },
+    { id:"vpc-2", pillar:"reliability",  title:"マルチAZ構成にする",               desc:"各レイヤーのサブネットを複数AZに展開し、AZ障害に対する耐性を確保する。" },
+    { id:"vpc-3", pillar:"security",     title:"VPCフローログを有効化する",        desc:"セキュリティ分析・コンプライアンス・トラブルシューティングのためVPCフローログをS3またはCloudWatch Logsに送信する。" },
+    { id:"vpc-4", pillar:"cost",         title:"NAT GatewayのコストをAZごとに最適化する", desc:"NAT GatewayはAZ間転送に課金されるため、各AZにNAT Gatewayを設置してデータ転送コストを最小化する。" },
+  ],
+  iam: [
+    { id:"iam-1", pillar:"security",     title:"MFAを全ユーザーに強制する",        desc:"ルートアカウントと全IAMユーザーにMFAを必須化する。SCP（組織ポリシー）で強制することを推奨。" },
+    { id:"iam-2", pillar:"security",     title:"ルートアカウントを日常使用しない",  desc:"ルートアカウントは初期設定と請求管理のみに限定し、通常業務はIAMユーザー/ロールを使用する。" },
+    { id:"iam-3", pillar:"security",     title:"アクセスキーを定期的にローテーションする", desc:"IAMアクセスキーは90日以内にローテーション。可能な限りIAMロールを使用してキー自体を不要にする。" },
+    { id:"iam-4", pillar:"operations",   title:"IAM Access Analyzerを使用する",     desc:"外部からアクセス可能なリソースを自動検出し、意図しないアクセス許可を把握する。" },
+  ],
+  cloudwatch: [
+    { id:"cloudwatch-1", pillar:"operations",   title:"アラームに対してアクションを設定する", desc:"CloudWatchアラームにSNS通知・Auto Scaling・EC2アクションを設定し、自動対応できるようにする。" },
+    { id:"cloudwatch-2", pillar:"operations",   title:"カスタムメトリクスを送信する",      desc:"アプリケーション固有の指標（リクエスト数・エラー率・ビジネスKPI）をカスタムメトリクスとして送信する。" },
+    { id:"cloudwatch-3", pillar:"operations",   title:"ログのリテンション期間を設定する",  desc:"デフォルトの無期限保存からコスト最適化のため適切な保持期間（30〜365日）を設定する。" },
+  ],
+  waf: [
+    { id:"waf-1", pillar:"security",     title:"AWSマネージドルールを使用する",     desc:"AWS Managed Rules（無料）でOWASP Top 10やAWSの脅威インテリジェンスに基づく保護を手軽に適用する。" },
+    { id:"waf-2", pillar:"security",     title:"レートベースのルールを設定する",    desc:"特定のIPからのリクエスト数に上限を設けてDDoSやブルートフォース攻撃を緩和する。" },
+    { id:"waf-3", pillar:"operations",   title:"WAFログをAthenaで分析する",        desc:"WAFのフルログをS3に保存し、Athenaでクエリして攻撃パターンや誤検知を分析する。" },
+  ],
+  kms: [
+    { id:"kms-1", pillar:"security",     title:"カスタマー管理キー（CMK）を使用する", desc:"機密データにはAWS管理キーでなくCMKを使用し、キーポリシーとローテーション（1年）を管理する。" },
+    { id:"kms-2", pillar:"security",     title:"キーポリシーで最小権限を付与する",  desc:"CMKへのアクセスはキーポリシーとIAMポリシーの両方で制御する。" },
+  ],
+  bedrock: [
+    { id:"bedrock-1", pillar:"security",     title:"VPCエンドポイント経由でアクセスする", desc:"インターネット経由を避け、VPCエンドポイント経由でBedrockにアクセスしてデータが外部に出ないようにする。" },
+    { id:"bedrock-2", pillar:"security",     title:"モデル呼び出しログを有効化する", desc:"コンプライアンスと監査のためにモデル呼び出しログをCloudWatchまたはS3に保存する。" },
+    { id:"bedrock-3", pillar:"cost",         title:"モデルを用途に合わせて選択する", desc:"タスクの複雑さに応じて最適なモデルを選択。高性能モデルが不要なタスクには軽量モデルを使用してコスト削減。" },
+  ],
+  sqs: [
+    { id:"sqs-1", pillar:"reliability",  title:"デッドレターキューを設定する",     desc:"処理に失敗したメッセージをDLQに移動し、再試行回数の上限を設定して無限ループを防ぐ。" },
+    { id:"sqs-2", pillar:"security",     title:"SSE（サーバーサイド暗号化）を有効化する", desc:"機密情報を含むメッセージはSSE-SQSまたはSSE-KMSで暗号化する。" },
+    { id:"sqs-3", pillar:"performance",  title:"Long Pollingを使用する",           desc:"ショートポーリングの代わりにLong Polling（最大20秒）を使用してコストとレイテンシを最適化する。" },
+  ],
+  sns: [
+    { id:"sns-1", pillar:"reliability",  title:"メッセージフィルタリングを使用する", desc:"サブスクリプションフィルターポリシーで不要なメッセージ配信を防ぎ、コストと処理負荷を削減する。" },
+    { id:"sns-2", pillar:"security",     title:"HTTPSエンドポイントのみに配信する", desc:"HTTPエンドポイントへの配信は避け、HTTPSまたはAWSサービス（Lambda/SQS等）に配信する。" },
+  ],
+  apigateway: [
+    { id:"apigateway-1", pillar:"security",     title:"認証・認可を必ず設定する",        desc:"Cognitoオーソライザー・IAM認証・Lambdaオーソライザーのいずれかで認証を実装する。" },
+    { id:"apigateway-2", pillar:"security",     title:"スロットリングを設定する",        desc:"デフォルトとメソッド別のスロットリング（レート/バースト制限）を設定してAPIを保護する。" },
+    { id:"apigateway-3", pillar:"performance",  title:"レスポンスキャッシュを有効化する", desc:"変更頻度の低いデータはAPIキャッシュ（0.5GB〜237GB）を活用してレイテンシとコストを改善する。" },
+    { id:"apigateway-4", pillar:"operations",   title:"カスタムドメインを設定する",      desc:"execute-api.amazonaws.comの代わりにカスタムドメインを設定し、証明書更新時もURLを変えずに済むようにする。" },
+  ],
+  cognito: [
+    { id:"cognito-1", pillar:"security",   title:"MFAを有効化する",                desc:"ユーザープールでMFAを必須または任意で有効化し、アカウント乗っ取りを防止する。" },
+    { id:"cognito-2", pillar:"security",   title:"パスワードポリシーを強化する",    desc:"最小文字数・大小文字・数字・記号の組み合わせを必須にし、安全なパスワードポリシーを設定する。" },
+    { id:"cognito-3", pillar:"security",   title:"高度なセキュリティ機能を有効化する", desc:"リスクベース認証（アダプティブ認証）を有効化し、不審なサインインを自動的にブロックする。" },
+  ],
+  elasticache: [
+    { id:"elasticache-1", pillar:"reliability",  title:"Multi-AZとフェイルオーバーを有効化する", desc:"本番環境ではMulti-AZを有効化し、ノード障害時の自動フェイルオーバーを設定する。" },
+    { id:"elasticache-2", pillar:"security",     title:"VPC内に配置してアクセスを制限する", desc:"ElastiCacheは必ずVPCのプライベートサブネットに配置し、セキュリティグループで接続元を制限する。" },
+    { id:"elasticache-3", pillar:"performance",  title:"適切なTTLを設定する",              desc:"キャッシュのTTLをデータの鮮度要件に合わせて設定し、スタールデータの使用を防ぐ。" },
+  ],
+  cloudtrail: [
+    { id:"cloudtrail-1", pillar:"security",     title:"全リージョンで有効化する",          desc:"CloudTrailはすべてのリージョンで有効化し、マルチリージョントレイルを作成する。" },
+    { id:"cloudtrail-2", pillar:"security",     title:"ログの整合性検証を有効化する",      desc:"ログファイルの整合性検証を有効化し、改ざんを検出できるようにする。" },
+    { id:"cloudtrail-3", pillar:"operations",   title:"CloudWatch Logsと統合する",        desc:"CloudTrailのログをCloudWatch Logsに送信し、特定のAPIコールにアラームを設定する。" },
+  ],
+};
+
+const PILLAR_INFO = {
+  security:    { label:"🔒 セキュリティ",    color:"#EF4444", bg:"#FEF2F2" },
+  reliability: { label:"🛡️ 信頼性",          color:"#3B82F6", bg:"#EFF6FF" },
+  performance: { label:"⚡ パフォーマンス",   color:"#F59E0B", bg:"#FFFBEB" },
+  cost:        { label:"💰 コスト最適化",     color:"#10B981", bg:"#ECFDF5" },
+  operations:  { label:"⚙️ 運用優秀性",       color:"#8B5CF6", bg:"#F5F3FF" },
+};
+
+// ── BestPracticeTab component ──────────────────────────────────────────────
+function BestPracticeTab({ nodes }) {
+  const [checks, setChecks] = useState({});
+  const [selectedService, setSelectedService] = useState(null);
+  const [filterPillar, setFilterPillar] = useState("all");
+
+  // キャンバス上のサービスからBPを収集
+  const serviceIds = [...new Set(
+    nodes.filter(n=>n.nodeType!=="group"&&n.nodeType!=="text")
+         .map(n=>n.serviceId)
+  )];
+  const availableServices = serviceIds.filter(id=>BEST_PRACTICES[id]);
+
+  useEffect(()=>{
+    if (availableServices.length>0 && !selectedService) {
+      setSelectedService(availableServices[0]);
+    }
+  },[availableServices.join(",")]);
+
+  const toggleCheck = (id) => setChecks(prev=>({...prev,[id]:!prev[id]}));
+
+  const allBPs = selectedService ? (BEST_PRACTICES[selectedService]||[]) : [];
+  const filteredBPs = filterPillar==="all" ? allBPs : allBPs.filter(b=>b.pillar===filterPillar);
+
+  const totalBPs = allBPs.length;
+  const checkedBPs = allBPs.filter(b=>checks[b.id]).length;
+  const pct = totalBPs>0 ? Math.round(checkedBPs/totalBPs*100) : 0;
+
+  // 全サービスの達成率サマリー
+  const allServiceStats = availableServices.map(sid=>{
+    const bps = BEST_PRACTICES[sid]||[];
+    const done = bps.filter(b=>checks[b.id]).length;
+    return { sid, name: Object.values(AWS_SERVICES).flatMap(c=>c.services).find(s=>s.id===sid)?.name||sid, total:bps.length, done };
+  });
+
+  const totalAll = allServiceStats.reduce((s,x)=>s+x.total,0);
+  const checkedAll = allServiceStats.reduce((s,x)=>s+x.done,0);
+  const pctAll = totalAll>0 ? Math.round(checkedAll/totalAll*100) : 0;
+
+  if (availableServices.length===0) return (
+    <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",background:"#F9FAFB"}}>
+      <div style={{textAlign:"center",color:"#9CA3AF"}}>
+        <div style={{fontSize:48,marginBottom:12}}>🏗️</div>
+        <div style={{fontSize:15,fontWeight:600,marginBottom:6}}>サービスを追加してください</div>
+        <div style={{fontSize:13}}>アーキテクチャタブでAWSサービスを配置すると<br/>該当サービスのベストプラクティスが表示されます</div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{flex:1,display:"flex",overflow:"hidden",background:"#F9FAFB"}}>
+
+      {/* 左パネル：サービス一覧 */}
+      <div style={{width:240,background:"#FFFFFF",borderRight:"0.5px solid #E5E7EB",display:"flex",flexDirection:"column",flexShrink:0}}>
+        {/* 全体サマリー */}
+        <div style={{padding:"14px 16px",background:"#1E293B",borderBottom:"1px solid #334155"}}>
+          <div style={{fontSize:11,color:"#94A3B8",marginBottom:4}}>全体の達成率</div>
+          <div style={{fontSize:26,fontWeight:700,color:"#F8FAFC",marginBottom:6}}>{pctAll}%</div>
+          <div style={{height:6,background:"#334155",borderRadius:3}}>
+            <div style={{height:"100%",width:`${pctAll}%`,background: pctAll>=80?"#10B981":pctAll>=50?"#F59E0B":"#3B82F6",borderRadius:3,transition:"width 0.4s"}}/>
+          </div>
+          <div style={{fontSize:11,color:"#64748B",marginTop:4}}>{checkedAll} / {totalAll} 項目完了</div>
+        </div>
+
+        {/* サービスリスト */}
+        <div style={{flex:1,overflowY:"auto"}}>
+          {allServiceStats.map(({sid,name,total,done})=>{
+            const isSel = selectedService===sid;
+            const p = Math.round(done/total*100);
+            const barColor = p>=80?"#10B981":p>=50?"#F59E0B":"#3B82F6";
+            const {color} = categoryColor(sid);
+            const iconSrc = awsIconSrc(sid, color);
+            return (
+              <div key={sid} onClick={()=>setSelectedService(sid)}
+                style={{padding:"10px 14px",cursor:"pointer",background:isSel?"#EFF6FF":"transparent",borderLeft:`3px solid ${isSel?color:"transparent"}`,borderBottom:"0.5px solid #F1F5F9"}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                  {iconSrc
+                    ? <img src={iconSrc} width={18} height={18} style={{borderRadius:3,flexShrink:0}}/>
+                    : <span style={{fontSize:14,flexShrink:0}}>☁️</span>
+                  }
+                  <span style={{fontSize:12,fontWeight:isSel?600:400,color:isSel?color:"#1F2937",flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{name}</span>
+                  <span style={{fontSize:11,color:p===100?"#10B981":"#6B7280",fontWeight:600,flexShrink:0}}>{done}/{total}</span>
+                </div>
+                <div style={{height:4,background:"#E5E7EB",borderRadius:2}}>
+                  <div style={{height:"100%",width:`${p}%`,background:barColor,borderRadius:2,transition:"width 0.3s"}}/>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 右パネル：ベストプラクティス詳細 */}
+      <div style={{flex:1,overflowY:"auto",padding:24}}>
+        {selectedService && (() => {
+          const {color,bg} = categoryColor(selectedService);
+          const iconSrc = awsIconSrc(selectedService, color);
+          const svcName = Object.values(AWS_SERVICES).flatMap(c=>c.services).find(s=>s.id===selectedService)?.name || selectedService;
+          return (
+            <>
+              {/* サービスヘッダー */}
+              <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:20,padding:"16px 20px",background:"#FFFFFF",borderRadius:12,border:"0.5px solid #E5E7EB",boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}>
+                {iconSrc
+                  ? <img src={iconSrc} width={44} height={44} style={{borderRadius:10,flexShrink:0}}/>
+                  : <span style={{fontSize:36}}>☁️</span>
+                }
+                <div style={{flex:1}}>
+                  <div style={{fontSize:18,fontWeight:700,color:"#1F2937"}}>{svcName}</div>
+                  <div style={{fontSize:12,color:"#6B7280",marginTop:2}}>AWS Well-Architected Framework ベストプラクティス</div>
+                </div>
+                <div style={{textAlign:"right"}}>
+                  <div style={{fontSize:28,fontWeight:700,color: pct===100?"#10B981":pct>=50?"#F59E0B":"#3B82F6"}}>{pct}%</div>
+                  <div style={{fontSize:11,color:"#9CA3AF"}}>{checkedBPs}/{totalBPs} 完了</div>
+                </div>
+              </div>
+
+              {/* 達成率バー */}
+              <div style={{height:8,background:"#E5E7EB",borderRadius:4,marginBottom:20}}>
+                <div style={{height:"100%",width:`${pct}%`,background:pct===100?"#10B981":pct>=50?"#F59E0B":"#3B82F6",borderRadius:4,transition:"width 0.4s"}}/>
+              </div>
+
+              {/* 柱フィルター */}
+              <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:20}}>
+                {[["all","📋 すべて",null],...Object.entries(PILLAR_INFO).map(([k,v])=>[k,v.label,v.color])].map(([key,label,c])=>(
+                  <button key={key} onClick={()=>setFilterPillar(key)}
+                    style={{padding:"5px 12px",fontSize:11,fontWeight:filterPillar===key?700:400,borderRadius:20,border:`1px solid ${filterPillar===key?(c||"#374151"):"#E5E7EB"}`,background:filterPillar===key?(c?`${c}15`:"#F1F5F9"):"#FFFFFF",color:filterPillar===key?(c||"#374151"):"#6B7280",cursor:"pointer"}}>
+                    {label}
+                    {key!=="all" && (() => {
+                      const cnt = allBPs.filter(b=>b.pillar===key).length;
+                      const done = allBPs.filter(b=>b.pillar===key&&checks[b.id]).length;
+                      return cnt>0 ? <span style={{marginLeft:4,opacity:0.7}}>{done}/{cnt}</span> : null;
+                    })()}
+                  </button>
+                ))}
+              </div>
+
+              {/* ベストプラクティス一覧 */}
+              <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                {filteredBPs.length===0 ? (
+                  <div style={{textAlign:"center",color:"#9CA3AF",padding:24}}>この柱のベストプラクティスはありません</div>
+                ) : filteredBPs.map(bp=>{
+                  const done = checks[bp.id];
+                  const pillar = PILLAR_INFO[bp.pillar];
+                  return (
+                    <div key={bp.id}
+                      style={{background:"#FFFFFF",borderRadius:10,border:`1px solid ${done?"#10B981":"#E5E7EB"}`,padding:"14px 16px",display:"flex",gap:12,alignItems:"flex-start",boxShadow:"0 1px 3px rgba(0,0,0,0.05)",transition:"border-color 0.2s,background 0.2s",cursor:"pointer",background:done?"#F0FDF4":"#FFFFFF"}}
+                      onClick={()=>toggleCheck(bp.id)}>
+                      {/* チェックボックス */}
+                      <div style={{width:22,height:22,borderRadius:6,border:`2px solid ${done?"#10B981":"#D1D5DB"}`,background:done?"#10B981":"#FFFFFF",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1,transition:"all 0.2s"}}>
+                        {done && <span style={{color:"white",fontSize:13,fontWeight:700,lineHeight:1}}>✓</span>}
+                      </div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}>
+                          <span style={{fontSize:13,fontWeight:600,color:done?"#166534":"#1F2937"}}>{bp.title}</span>
+                          <span style={{fontSize:10,fontWeight:600,color:pillar.color,background:pillar.bg,padding:"2px 8px",borderRadius:99,flexShrink:0}}>{pillar.label}</span>
+                        </div>
+                        <div style={{fontSize:12,color:done?"#4ADE80":"#6B7280",lineHeight:1.7}}>{bp.desc}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          );
+        })()}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [nodes, setNodes] = useState([]);
   const [connections, setConnections] = useState([]);
@@ -3150,7 +3461,7 @@ export default function App() {
 
       {/* ── Tab bar ── */}
       <div style={{background:"#37475A",display:"flex",flexShrink:0}}>
-        {[["canvas","🏗️ アーキテクチャ"],["cost","💰 料金詳細"]].map(([id,label])=>(
+        {[["canvas","🏗️ アーキテクチャ"],["cost","💰 料金詳細"],["best","📋 ベストプラクティス"]].map(([id,label])=>(
           <button key={id} onClick={()=>setActiveTab(id)}
             style={{background:activeTab===id?"#070A12":"transparent",color:activeTab===id?"#FF9900":"#ccc",border:"none",padding:"8px 18px",fontSize:13,cursor:"pointer",borderTop:activeTab===id?"2px solid #FF9900":"2px solid transparent",fontWeight:activeTab===id?600:400}}>
             {label}
@@ -3979,6 +4290,11 @@ export default function App() {
         {/* ── Cost tab ── */}
         {activeTab==="cost"&&(
           <CostTab nodes={nodes} setNodes={setNodes} rf={rf} totalUSD={totalUSD} totalJPY={totalJPY} region={region} usdJpy={usdJpy}/>
+        )}
+
+        {/* ── Best Practice tab ── */}
+        {activeTab==="best"&&(
+          <BestPracticeTab nodes={nodes}/>
         )}
       </div>
 
